@@ -1,6 +1,12 @@
-class Printer:
-    def __init__(self, text: str):
-        self.text = text
+import time
 
-    def introduce(self):
-        print(self.text)
+
+class App:
+    def __init__(self, text: str, timer: int):
+        self.text = text
+        self.timer = timer
+
+    def run(self):
+        while True:
+            print(self.text)
+            time.sleep(self.timer)
