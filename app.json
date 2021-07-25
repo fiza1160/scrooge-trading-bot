@@ -1,0 +1,12 @@
+{
+    "name": "Trading Bot",
+    "description": "Blah-blah-blah",
+    "addons": [ "redistogo" ],
+    "formation": {
+      "worker": {
+        "quantity": 1,
+        "size": "free"
+      }
+    }
+  }
+  
