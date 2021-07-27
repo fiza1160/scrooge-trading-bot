@@ -12,10 +12,18 @@ class App:
     def run(self):
         while True:
             coins_rsi = self.rsi_checker.check_rsi()
-            decisions = self.decision_maker.choose_low_rsi(coins_rsi)
+            decisions = self.decision_maker.choose_rising_low_rsi(coins_rsi)
             for decision in decisions:
                 self.notifier.notify(decision)
             time.sleep(60)
+
+
+class CoinRsiInfo:
+
+    def __init__(self, coin, present_rsi=0, previous_rsi=0):
+        self.coin = coin
+        self.present_rsi = present_rsi
+        self.previous_rsi = previous_rsi
 
 
 class RsiChecker:
@@ -26,42 +34,70 @@ class RsiChecker:
         self.timeout = timeout
 
     def check_rsi(self):
-        coins_rsi = {}
+        coins_rsi = []
         for coin in self.coins:
-            rsi = self._get_coin_rsi(coin)
-            if rsi:
-                coins_rsi[coin] = int(rsi)
+            coin_rsi = self._get_coin_rsi(coin)
+            if coin_rsi:
+                coins_rsi.append(coin_rsi)
 
         return coins_rsi
 
     def _get_coin_rsi(self, coin):
-        rsi = None
 
         time.sleep(self.timeout)
+        rsi_values = self._get_rsi_values(coin)
 
+        if rsi_values:
+            return CoinRsiInfo(
+                coin=coin,
+                present_rsi=rsi_values['present_rsi'],
+                previous_rsi=rsi_values['previous_rsi']
+            )
+
+    def _get_rsi_values(self, coin):
         payload = {
             'secret': self.ta_api_key,
             'exchange': 'binance',
             'symbol': coin,
             'interval': '5m',
+            'backtracks': 2,
         }
         r = requests.get('https://api.taapi.io/rsi', params=payload)
+        if r.status_code != requests.codes.ok:
+            print(f'{time.strftime("%H:%M:%S", time.localtime())} -{coin}- {r.content}')  # TODO add logger
+            if r.status_code == 429:
+                time.sleep(60)
+            return
 
-        if r.status_code == requests.codes.ok:
-            rsi = r.json().get('value')
+        return self._parse_response(r.json())
 
-        return rsi
+    @staticmethod
+    def _parse_response(response):
+
+        rsi_values = {
+            'present_rsi': 0,
+            'previous_rsi': 0,
+        }
+
+        for item in response:
+            backtrack = item.get('backtrack')
+
+            if backtrack == 0:
+                rsi_values['present_rsi'] = item.get('value')
+            elif backtrack == 1:
+                rsi_values['previous_rsi'] = item.get('value')
+
+        return rsi_values
 
 
 class DecisionMaker:
 
     @staticmethod
-    def choose_low_rsi(coins_rsi):
+    def choose_rising_low_rsi(coins_rsi):
         decisions = []
-        for coin in coins_rsi:
-            rsi = coins_rsi.get(coin)
-            if rsi < 30:
-                decisions.append(f'{coin} RSI: {rsi}')
+        for rsi in coins_rsi:
+            if rsi.present_rsi > rsi.previous_rsi < 30:
+                decisions.append(f'{rsi.coin} previous RSI: {rsi.previous_rsi}, present RSI: {rsi.present_rsi}')
 
         return decisions
 
