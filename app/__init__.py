@@ -7,6 +7,7 @@ def create_app(config_class=Config):
     rsi_checker = RsiChecker(
         ta_api_key=config_class.TA_API_KEY,
         coins=config_class.STORMGAIN_COINS,
+        timeout=config_class.TA_API_TIMEOUT,
     )
 
     notifier = Notifier(

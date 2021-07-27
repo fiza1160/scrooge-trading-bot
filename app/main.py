@@ -20,9 +20,10 @@ class App:
 
 class RsiChecker:
 
-    def __init__(self, ta_api_key, coins):
+    def __init__(self, ta_api_key, coins, timeout):
         self.ta_api_key = ta_api_key
         self.coins = coins
+        self.timeout = timeout
 
     def check_rsi(self):
         coins_rsi = {}
@@ -36,7 +37,7 @@ class RsiChecker:
     def _get_coin_rsi(self, coin):
         rsi = None
 
-        time.sleep(15)  # TODO Add ta_api_trial=true to .env and add a check for this.
+        time.sleep(self.timeout)
 
         payload = {
             'secret': self.ta_api_key,
