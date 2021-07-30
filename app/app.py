@@ -15,13 +15,13 @@ class App:
         rsi_queue = asyncio.Queue()
         decision_queue = asyncio.Queue()
 
-        rsi_checker_task = asyncio.create_task(self.rsi_checker.check(rsi_queue), name='RSI Checker')
-        decision_maker_task = asyncio.create_task(self.decision_maker.choose_rising_low_rsi(rsi_queue, decision_queue),
-                                             name='Decision Maker')
-        notifier_task = asyncio.create_task(self.notifier.notify(decision_queue), name='Notifier')
+        task_rsi_checker = asyncio.create_task(self.rsi_checker.check(rsi_queue), name='RSI Checker')
+        task_decision_maker = asyncio.create_task(self.decision_maker.choose_rising_low_rsi(rsi_queue, decision_queue),
+                                                  name='Decision Maker')
+        task_notifier = asyncio.create_task(self.notifier.notify(decision_queue), name='Notifier')
 
         await asyncio.gather(
-            rsi_checker_task,
-            decision_maker_task,
-            notifier_task,
+            task_rsi_checker,
+            task_decision_maker,
+            task_notifier,
         )

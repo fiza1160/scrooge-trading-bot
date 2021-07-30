@@ -6,42 +6,42 @@ import aiohttp as aiohttp
 
 class IndicatorInfoRSI:
 
-    def __init__(self, coin, present_value=0, previous_value=0):
-        self.coin = coin
+    def __init__(self, future, present_value=0, previous_value=0):
+        self.future = future
         self.present_value = int(present_value)
         self.previous_value = int(previous_value)
         self.indicator_name = 'RSI'
 
     def __str__(self):
-        return f'{self.coin} present {self.indicator_name}: {self.present_value}, ' \
+        return f'{self.future} present {self.indicator_name}: {self.present_value}, ' \
                f'previous {self.indicator_name}: {self.previous_value}'
 
 
 class IndicatorCheckerRSI:
 
-    def __init__(self, coins, ta_api_key, timeout):
-        self.coins = coins
+    def __init__(self, futures, ta_api_key, timeout):
+        self.futures = futures
         self.ta_api_key = ta_api_key
         self.timeout = timeout
 
     async def check(self, rsi_queue):
         while True:
-            for coin in self.coins:
-                response = await self._make_request(coin)
+            for future in self.futures:
+                response = await self._make_request(future)
                 if response:
-                    rsi_info = await self._parse_response(coin, response)
+                    rsi_info = await self._parse_response(future, response)
                     await rsi_queue.put(rsi_info)
 
             await asyncio.sleep(60)
 
-    async def _make_request(self, coin):
+    async def _make_request(self, future):
 
         await asyncio.sleep(self.timeout)
 
         params = {
             'secret': self.ta_api_key,
             'exchange': 'binance',
-            'symbol': coin,
+            'symbol': future,
             'interval': '5m',
             'backtracks': 2,
         }
@@ -50,7 +50,7 @@ class IndicatorCheckerRSI:
             async with session.get('https://api.taapi.io/rsi', params=params) as resp:
                 if resp.status != 200:
                     # TODO add logger
-                    print(f'{time.strftime("%H:%M:%S", time.localtime())} -{coin}- {await resp.text()}')
+                    print(f'{time.strftime("%H:%M:%S", time.localtime())} -{future}- {await resp.text()}')
                     return
 
                 resp_json = await resp.json()
@@ -58,7 +58,7 @@ class IndicatorCheckerRSI:
         return resp_json
 
     @staticmethod
-    async def _parse_response(coin, response):
+    async def _parse_response(future, response):
 
         present_rsi = 0
         previous_rsi = 0
@@ -72,7 +72,7 @@ class IndicatorCheckerRSI:
                 previous_rsi = item.get('value')
 
         return IndicatorInfoRSI(
-            coin=coin,
+            future=future,
             present_value=present_rsi,
             previous_value=previous_rsi,
         )

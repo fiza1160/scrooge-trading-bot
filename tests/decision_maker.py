@@ -18,7 +18,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
 
     async def _put_rsi_in_queue(self, present_value, previous_value):
         rsi_info = IndicatorInfoRSI(
-            coin='BTC/USDT',
+            future='BTC/USDT',
             present_value=present_value,
             previous_value=previous_value,
         )
