@@ -7,7 +7,7 @@ from config import Config
 
 def create_app(config_class=Config):
     rsi_checker = IndicatorCheckerRSI(
-        coins=config_class.STORMGAIN_COINS,
+        symbols=config_class.STORMGAIN_SYMBOLS,
         ta_api_key=config_class.TA_API_KEY,
         timeout=config_class.TA_API_TIMEOUT,
     )
