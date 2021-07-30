@@ -1,80 +1,67 @@
-import unittest
-from app.main import CoinRsiInfo, DecisionMaker
+import asyncio
+from unittest import IsolatedAsyncioTestCase
+from app.main import IndicatorInfoRSI, DecisionMaker
 
 
-class TestDecisionMaker(unittest.TestCase):
+class TestDecisionMaker(IsolatedAsyncioTestCase):
 
-    def test_choose_rising_low_rsi(self):
+    async def asyncSetUp(self) -> None:
+        self.decision_maker = DecisionMaker()
+        self.rsi_queue = asyncio.Queue()
+        self.decision_queue = asyncio.Queue()
+
+        asyncio.create_task(
+            self.decision_maker.choose_rising_low_rsi(self.rsi_queue, self.decision_queue),
+            name='Decision Maker'
+        )
+
+    async def _put_rsi_in_queue(self, present_value, previous_value):
+        rsi_info = IndicatorInfoRSI(
+            coin='BTC/USDT',
+            present_value=present_value,
+            previous_value=previous_value,
+        )
+
+        self.rsi_queue.put_nowait(rsi_info)
+        await asyncio.sleep(1)
+
+    async def test_choose_rising_low_rsi(self):
         with self.subTest(case='When previous RSI < 30 and RSI began to rise (present RSI > previous RSI)'
                                'decision list should contain message'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=32,
-                    previous_rsi=28,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 1)
+
+            await self._put_rsi_in_queue(present_value=32, previous_value=28)
+
+            self.assertEqual(self.decision_queue.empty(), False)
             self.assertEqual(
-                decisions[0],
-                'BTC/USDT previous RSI: 28, present RSI: 32'
+                self.decision_queue.get_nowait(),
+                'BTC/USDT present RSI: 32, previous RSI: 28'
             )
 
         with self.subTest(case='When previous RSI > 30, an empty list should be returned'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=32,
-                    previous_rsi=40,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 0)
+
+            await self._put_rsi_in_queue(present_value=18, previous_value=45)
+            self.assertEqual(self.decision_queue.empty(), True)
 
         with self.subTest(case='When previous RSI = 30, an empty list should be returned'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=42,
-                    previous_rsi=30,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 0)
+
+            await self._put_rsi_in_queue(present_value=42, previous_value=30)
+            self.assertEqual(self.decision_queue.empty(), True)
 
         with self.subTest(case='When previous RSI < 30, but present RSI < previous RSI, '
                                'an empty list should be returned'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=11,
-                    previous_rsi=19,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 0)
+
+            await self._put_rsi_in_queue(present_value=11, previous_value=19)
+            self.assertEqual(self.decision_queue.empty(), True)
 
         with self.subTest(case='When previous RSI < 30, but present RSI = previous RSI, '
                                'an empty list should be returned'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=19,
-                    previous_rsi=19,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 0)
+
+            await self._put_rsi_in_queue(present_value=19, previous_value=19)
+            self.assertEqual(self.decision_queue.empty(), True)
 
         with self.subTest(case='When previous RSI > 30, and present RSI > 30, '
                                'an empty list should be returned'):
-            rsi_info = [
-                CoinRsiInfo(
-                    coin='BTC/USDT',
-                    present_rsi=42,
-                    previous_rsi=65,
-                )
-            ]
-            decisions = DecisionMaker.choose_rising_low_rsi(rsi_info)
-            self.assertEqual(len(decisions), 0)
+
+            await self._put_rsi_in_queue(present_value=42, previous_value=65)
+            self.assertEqual(self.decision_queue.empty(), True)
+
