@@ -1,4 +1,7 @@
-from app.main import App, IndicatorCheckerRSI, Notifier, DecisionMaker
+from app.app import App
+from app.rsi_checker import IndicatorCheckerRSI
+from app.notifier import Notifier
+from app.decition_maker import DecisionMaker
 from config import Config
 
 

@@ -1,6 +1,7 @@
 import asyncio
 from unittest import IsolatedAsyncioTestCase
-from app.main import IndicatorInfoRSI, DecisionMaker
+from app.rsi_checker import IndicatorInfoRSI
+from app import DecisionMaker
 
 
 class TestDecisionMaker(IsolatedAsyncioTestCase):
