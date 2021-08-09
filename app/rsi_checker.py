@@ -1,5 +1,4 @@
 import asyncio
-import time
 
 import aiohttp as aiohttp
 
@@ -13,8 +12,8 @@ class IndicatorInfoRSI:
         self.indicator_name = 'RSI'
 
     def __str__(self):
-        return f'{self.symbol} present {self.indicator_name}: {self.present_value}, ' \
-               f'previous {self.indicator_name}: {self.previous_value}'
+        return f'{self.symbol} present {self.indicator_name}:{self.present_value}, ' \
+               f'previous {self.indicator_name}:{self.previous_value}'
 
 
 class IndicatorCheckerRSI:
@@ -36,12 +35,14 @@ class IndicatorCheckerRSI:
 
     async def _make_request(self, symbol):
 
+        ta_api_alias = self._get_ta_api_alias(symbol)
+
         await asyncio.sleep(self.timeout)
 
         params = {
             'secret': self.ta_api_key,
             'exchange': 'binance',
-            'symbol': symbol,
+            'symbol': ta_api_alias,
             'interval': '5m',
             'backtracks': 2,
         }
@@ -50,12 +51,16 @@ class IndicatorCheckerRSI:
             async with session.get('https://api.taapi.io/rsi', params=params) as resp:
                 if resp.status != 200:
                     # TODO add logger
-                    print(f'{time.strftime("%H:%M:%S", time.localtime())} -{symbol}- {await resp.text()}')
+                    print(f'{ta_api_alias} {await resp.text()}')
                     return
 
                 resp_json = await resp.json()
 
         return resp_json
+
+    @staticmethod
+    def _get_ta_api_alias(symbol):
+        return f'{symbol.base_currency}/{symbol.quote_currency}'
 
     @staticmethod
     async def _parse_response(symbol, response):

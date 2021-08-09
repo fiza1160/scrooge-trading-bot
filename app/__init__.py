@@ -2,12 +2,19 @@ from app.app import App
 from app.rsi_checker import IndicatorCheckerRSI
 from app.notifier import Notifier
 from app.decition_maker import DecisionMaker
+from app.symbols import create_symbols_list
 from config import Config
 
 
 def create_app(config_class=Config):
+
+    symbols = create_symbols_list(
+        config_class.STORMGAIN_SYMBOLS,
+        config_class.BYBIT_SYMBOLS,
+    )
+
     rsi_checker = IndicatorCheckerRSI(
-        symbols=config_class.STORMGAIN_SYMBOLS,
+        symbols=symbols,
         ta_api_key=config_class.TA_API_KEY,
         timeout=config_class.TA_API_TIMEOUT,
     )

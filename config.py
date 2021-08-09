@@ -11,4 +11,5 @@ class Config:
     TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
     TA_API_KEY = os.environ.get('TA_API_KEY')
     STORMGAIN_SYMBOLS = json.loads(os.environ.get('STORMGAIN_SYMBOLS'))
+    BYBIT_SYMBOLS = json.loads(os.environ.get('BYBIT_SYMBOLS'))
     TA_API_TIMEOUT = int(os.environ.get('TA_API_TIMEOUT') or 15)
