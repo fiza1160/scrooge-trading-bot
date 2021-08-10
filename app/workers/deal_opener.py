@@ -17,6 +17,7 @@ class DealOpener:
                 elif exchange.deal_opening_method == CREATE_ORDER:
                     await order_queue.put(decision)
                 else:
-                    raise NotImplemented
+                    # TODO add logger
+                    print(f'DealOpeningMethod {exchange.deal_opening_method} is not implemented')
 
             decision_queue.task_done()
