@@ -12,8 +12,12 @@ class IndicatorInfoRSI:
         self.indicator_name = 'RSI'
 
     def __str__(self):
-        return f'{self.symbol} present {self.indicator_name}:{self.present_value}, ' \
-               f'previous {self.indicator_name}:{self.previous_value}'
+        return f'present {self.indicator_name} {self.present_value}, ' \
+               f'previous {self.indicator_name} {self.previous_value}'
+
+    def __repr__(self):
+        return f'{self.symbol} present {self.indicator_name} {self.present_value}, ' \
+               f'previous {self.indicator_name} {self.previous_value}'
 
 
 class IndicatorCheckerRSI:
@@ -35,14 +39,12 @@ class IndicatorCheckerRSI:
 
     async def _make_request(self, symbol):
 
-        ta_api_alias = self._get_ta_api_alias(symbol)
-
         await asyncio.sleep(self.timeout)
 
         params = {
             'secret': self.ta_api_key,
             'exchange': 'binance',
-            'symbol': ta_api_alias,
+            'symbol': self._get_ta_api_symbol_alias(symbol),
             'interval': '5m',
             'backtracks': 2,
         }
@@ -51,7 +53,7 @@ class IndicatorCheckerRSI:
             async with session.get('https://api.taapi.io/rsi', params=params) as resp:
                 if resp.status != 200:
                     # TODO add logger
-                    print(f'{ta_api_alias} {await resp.text()}')
+                    print(f'{symbol} {await resp.text()}')
                     return
 
                 resp_json = await resp.json()
@@ -59,7 +61,7 @@ class IndicatorCheckerRSI:
         return resp_json
 
     @staticmethod
-    def _get_ta_api_alias(symbol):
+    def _get_ta_api_symbol_alias(symbol):
         return f'{symbol.base_currency}/{symbol.quote_currency}'
 
     @staticmethod
