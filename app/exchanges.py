@@ -4,7 +4,7 @@ from functools import cache
 
 
 class DealOpeningMethod(Enum):
-    CREATE_ORDER = auto()
+    OPEN_DEAL = auto()
     SEND_MESSAGE = auto()
 
 
@@ -46,7 +46,7 @@ class ByBit(Exchange):
 
     @property
     def deal_opening_method(self):
-        return DealOpeningMethod.CREATE_ORDER
+        return DealOpeningMethod.OPEN_DEAL
 
 
 def create_exchange_list(exchanges):

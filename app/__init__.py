@@ -1,5 +1,5 @@
 from app.app import App
-from app.workers.deal_opener import DealOpener
+from app.workers.deal_opening_router import DealOpeningRouter
 from app.workers.rsi_checker import IndicatorCheckerRSI
 from app.workers.notifier import Notifier
 from app.workers.decition_maker import DecisionMaker
@@ -28,7 +28,7 @@ def create_app(config_class=Config):
     app = App(
         rsi_checker=rsi_checker,
         decision_maker=DecisionMaker(),
-        deal_opener=DealOpener(),
+        deal_opening_router=DealOpeningRouter(),
         notifier=notifier
     )
 
