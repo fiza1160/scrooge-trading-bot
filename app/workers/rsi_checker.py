@@ -23,13 +23,13 @@ class IndicatorInfoRSI:
 class IndicatorCheckerRSI:
 
     def __init__(self, symbols, ta_api_key, timeout):
-        self.symbols = symbols
-        self.ta_api_key = ta_api_key
-        self.timeout = timeout
+        self._symbols = symbols
+        self._ta_api_key = ta_api_key
+        self._timeout = timeout
 
     async def check(self, rsi_queue):
         while True:
-            for symbol in self.symbols:
+            for symbol in self._symbols:
                 response = await self._make_request(symbol)
                 if response:
                     rsi_info = await self._parse_response(symbol, response)
@@ -39,10 +39,10 @@ class IndicatorCheckerRSI:
 
     async def _make_request(self, symbol):
 
-        await asyncio.sleep(self.timeout)
+        await asyncio.sleep(self._timeout)
 
         params = {
-            'secret': self.ta_api_key,
+            'secret': self._ta_api_key,
             'exchange': 'binance',
             'symbol': self._get_ta_api_symbol_alias(symbol),
             'interval': '5m',
