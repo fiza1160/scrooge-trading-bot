@@ -43,7 +43,7 @@ class IndicatorUpdater:
                 self._last_updates[indicator] = datetime.now()
                 self._values_updated = True
 
-        self._timeout = min_timeout
+        self._timeout = min_timeout/2
 
     def _its_time_to_update(self, indicator: Indicator) -> bool:
         its_time = False
