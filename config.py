@@ -10,7 +10,7 @@ class SettingsLoader:
 
     @staticmethod
     def load():
-        with open(f'{basedir}\\settings.json') as f:
+        with open(f'{basedir}/settings.json') as f:
             return json.load(f)
 
 
