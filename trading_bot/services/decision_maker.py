@@ -61,13 +61,15 @@ class DecisionMaker:
                             )
 
     async def _call_router(self, side, symbol, trading_system):
-        await self._decision_router.rout(
-            decision=self.Decision(
+        decision = self.Decision(
                 symbol=symbol,
                 side=side,
                 trading_system=trading_system,
             )
-        )
+        # TODO add logger
+        print(decision)
+
+        await self._decision_router.rout(decision=decision)
 
     def _get_actual_indicator_values(
             self,

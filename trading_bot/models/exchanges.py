@@ -31,7 +31,7 @@ class ExchangeManager:
             deal_opening_method=self._get_deal_opening_method_by_name(deal_opening_method),
         )
         self._exchanges.append(exchange)
-        self._exchanges_by_name[name] = exchange
+        self._exchanges_by_name[name.upper()] = exchange
 
         return exchange
 
@@ -39,7 +39,7 @@ class ExchangeManager:
         return self._exchanges.copy()
 
     def get(self, name: str) -> Exchange:
-        return self._exchanges_by_name.get(name)
+        return self._exchanges_by_name.get(name.upper())
 
     @staticmethod
     def _get_deal_opening_method_by_name(deal_opening_method_name: str) -> DealOpeningMethod:

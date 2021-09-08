@@ -21,12 +21,16 @@ def create_exchanges(exchange_manager, exchanges_config):
         )
 
 
-def create_symbols(symbol_manager, symbols_config):
+def create_symbols(symbol_manager, exchange_manager, symbols_config):
     for symbol in symbols_config:
+        exchanges = []
+        for ex in symbol['exchanges']:
+            exchanges.append(exchange_manager.get(ex))
+
         symbol_manager.create(
             base_currency=symbol['base_currency'],
             quote_currency=symbol['quote_currency'],
-            exchanges=symbol['exchanges'],
+            exchanges=exchanges,
             deal_opening_params=symbol['deal_opening_params'],
         )
 
@@ -47,7 +51,7 @@ def create_app(config_class=Config):
     app.trading_system_manager = TradingSystemManager(app.indicator_manager, app.exchange_manager)
 
     create_exchanges(app.exchange_manager, config_class.EXCHANGES)
-    create_symbols(app.symbol_manager, config_class.SYMBOLS)
+    create_symbols(app.symbol_manager, app.exchange_manager, config_class.SYMBOLS)
     create_trading_systems(app.trading_system_manager, config_class.TRADING_SYSTEMS_SETTINGS)
 
     app.notifier = Notifier(
