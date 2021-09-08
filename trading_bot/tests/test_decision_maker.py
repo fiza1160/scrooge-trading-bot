@@ -16,12 +16,12 @@ class TestDecisionMaker(TestCase):
         reset_managers()
 
     @patch('trading_bot.services.decision_maker.DecisionMaker._call_router')
-    def test__decide(self, mock__call_router):
+    async def test__decide(self, mock__call_router):
 
         with self.subTest(case='When there are no symbols,'
                                'method should do nothing'):
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -46,7 +46,7 @@ class TestDecisionMaker(TestCase):
             )
             symbol.pause = True
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -60,7 +60,7 @@ class TestDecisionMaker(TestCase):
 
             mock__call_router.reset_mock()
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -80,7 +80,7 @@ class TestDecisionMaker(TestCase):
                 settings=settings[0]['settings']
             )
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -110,7 +110,7 @@ class TestDecisionMaker(TestCase):
                 )
             indicator_values[0].updated_at = datetime.now() - timedelta(hours=8)
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -139,7 +139,7 @@ class TestDecisionMaker(TestCase):
                     )
                 )
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -179,7 +179,7 @@ class TestDecisionMaker(TestCase):
                 previous_value=2,
             )
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
@@ -225,7 +225,7 @@ class TestDecisionMaker(TestCase):
                 previous_value=2,
             )
 
-            DecisionMaker(
+            await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,

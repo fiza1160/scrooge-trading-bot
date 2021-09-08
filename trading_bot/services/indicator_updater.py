@@ -23,7 +23,7 @@ class IndicatorUpdater:
             self._values_updated = False
             await self._update()
             if self._values_updated:
-                self._call_decision_maker()
+                await self._call_decision_maker()
 
             await asyncio.sleep(self._timeout)
 
@@ -75,5 +75,5 @@ class IndicatorUpdater:
                         previous_value=new_values['previous_value']
                     )
 
-    def _call_decision_maker(self) -> None:
-        self._decision_maker.decide()
+    async def _call_decision_maker(self) -> None:
+        await self._decision_maker.decide()

@@ -41,8 +41,7 @@ class DecisionMaker:
         self._indicator_value_manager = indicator_value_manager
         self._decision_router = decision_router
 
-
-    def decide(self) -> None:
+    async def decide(self) -> None:
         for symbol in self._symbol_manager.list():
             if not symbol.pause:
                 for trading_system in self._trading_system_manager.list():
@@ -55,14 +54,14 @@ class DecisionMaker:
                         if buy or sell:
                             symbol.pause = True
                             side = DealSide.BUY if buy else DealSide.SELL
-                            self._call_router(
+                            await self._call_router(
                                 side=side,
                                 symbol=symbol,
                                 trading_system=trading_system,
                             )
 
-    def _call_router(self, side, symbol, trading_system):
-        self._decision_router.rout(
+    async def _call_router(self, side, symbol, trading_system):
+        await self._decision_router.rout(
             decision=self.Decision(
                 symbol=symbol,
                 side=side,
@@ -102,5 +101,3 @@ class DecisionMaker:
                     second_operand_value=second_operand_value,
                 )
         return is_satisfied
-
-
