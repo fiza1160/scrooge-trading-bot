@@ -19,6 +19,8 @@ class Config:
     TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
     TA_API_KEY = os.environ.get('TA_API_KEY')
     TA_API_TIMEOUT = int(os.environ.get('TA_API_TIMEOUT') or 15)
+    BY_BIT_API_KEY = os.environ.get('BY_BIT_API_KEY')
+    BY_BIT_API_SECRET = os.environ.get('BY_BIT_API_SECRET')
 
     _settings = SettingsLoader.load()
 

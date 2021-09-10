@@ -42,7 +42,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                                'IndicatorUpdater should call _update_indicator_values '
                                'for [1d_Momentum_10, 1h_MA_4, 5m_MA_9]'
                                'IndicatorUpdater should fill self._last_updates '
-                               'IndicatorUpdater should update self._timeout (300)'):
+                               'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             ind_updater = IndicatorUpdater(
                 indicators_adapter=MagicMock(),
                 decision_maker=MagicMock()
@@ -56,7 +56,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertIsNotNone(ind_updater._last_updates.get(ma4))
             self.assertIsNotNone(ind_updater._last_updates.get(ma9))
 
-            self.assertEqual(ind_updater._timeout, 300)
+            self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
         with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
@@ -65,7 +65,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                                'IndicatorUpdater should call _update_indicator_values '
                                'for [1d_Momentum_10, 1h_MA_4, 5m_MA_9]'
                                'IndicatorUpdater should update self._last_updates '
-                               'IndicatorUpdater should update self._timeout (300)'):
+                               'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             mock_update_indicator_values.reset_mock()
 
             time_now = datetime.now()
@@ -92,7 +92,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(ind_updater._last_updates[ma4], time_now)
             self.assertEqual(ind_updater._last_updates[ma9], time_now)
 
-            self.assertEqual(ind_updater._timeout, 300)
+            self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
         with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
@@ -127,14 +127,14 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(ind_updater._last_updates[ma4], time_now)
             self.assertEqual(ind_updater._last_updates[ma9], time_now)
 
-            self.assertEqual(ind_updater._timeout, 300)
+            self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
         with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
                                'and it is not time to update the indicators yet. '
                                'IndicatorUpdater should not call _update_indicator_values '
                                'IndicatorUpdater should not update self._last_updates '
-                               'IndicatorUpdater should update self._timeout (300)'):
+                               'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             mock_update_indicator_values.reset_mock()
 
             time_now = datetime.now()
@@ -161,7 +161,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(ind_updater._last_updates[ma4], last_updated_time)
             self.assertEqual(ind_updater._last_updates[ma9], last_updated_time)
 
-            self.assertEqual(ind_updater._timeout, 300)
+            self.assertEqual(app.indicator_update_timeout, 150)
             self.assertFalse(ind_updater._values_updated)
 
         with self.subTest(case='Test updater for indicators [], '

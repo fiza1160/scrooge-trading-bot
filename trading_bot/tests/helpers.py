@@ -2,6 +2,7 @@ from trading_bot import app, create_app
 
 
 def init_app():
+    # TODO add test config class
     create_app()
 
 

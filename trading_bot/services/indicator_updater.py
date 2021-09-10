@@ -12,7 +12,6 @@ class IndicatorUpdater:
             indicators_adapter,
             decision_maker,
     ) -> None:
-        self._timeout = 60
         self._last_updates = {}
         self._values_updated = False
         self._indicators_adapter = indicators_adapter
@@ -25,7 +24,7 @@ class IndicatorUpdater:
             if self._values_updated:
                 await self._call_decision_maker()
 
-            await asyncio.sleep(self._timeout)
+            await asyncio.sleep(app.indicator_update_timeout)
 
     async def _update(self) -> None:
         min_timeout = 604800
@@ -43,7 +42,7 @@ class IndicatorUpdater:
                 self._last_updates[indicator] = datetime.now()
                 self._values_updated = True
 
-        self._timeout = min_timeout/2
+        app.indicator_update_timeout = min_timeout / 2
 
     def _its_time_to_update(self, indicator: Indicator) -> bool:
         its_time = False

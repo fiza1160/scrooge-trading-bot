@@ -1,7 +1,7 @@
 import telebot
 
 
-class Notifier:
+class AdapterTelegram:
 
     def __init__(self, token, chat_id):
         self._token = token
