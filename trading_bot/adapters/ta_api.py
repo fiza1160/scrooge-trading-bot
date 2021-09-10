@@ -8,28 +8,28 @@ from trading_bot.models.symbols import Symbol
 class AdapterTaAPI:
 
     def __init__(self, api_key: str, timeout: int) -> None:
-        self.api_key = api_key
-        self.timeout = timeout
-        self.symbol_template = '{base_currency}/{quote_currency}'
-        self.url = 'https://api.taapi.io/'
-        self.endpoints = {
+        self._api_key = api_key
+        self._timeout = timeout
+        self._symbol_template = '{base_currency}/{quote_currency}'
+        self._url = 'https://api.taapi.io/'
+        self._endpoints = {
             'Momentum': 'mom',
             'MovingAverage': 'ma',
         }
 
     async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
 
-        await asyncio.sleep(self.timeout)
+        await asyncio.sleep(self._timeout)
 
         params = {
-            'secret': self.api_key,
+            'secret': self._api_key,
             'exchange': 'binance',
             'symbol': self._get_symbol_alias(symbol),
             'interval': indicator.interval.name,
             'backtracks': indicator.period,
         }
 
-        url = f'{self.url}{self.endpoints.get(indicator.indicator_type)}'
+        url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'
         response = requests.get(url, params=params)
         if response.status_code != 200:
             # TODO add logger
@@ -42,7 +42,7 @@ class AdapterTaAPI:
         return resp
 
     def _get_symbol_alias(self, symbol: Symbol) -> str:
-        return self.symbol_template.format(
+        return self._symbol_template.format(
             base_currency=symbol.base_currency,
             quote_currency=symbol.quote_currency,
         )

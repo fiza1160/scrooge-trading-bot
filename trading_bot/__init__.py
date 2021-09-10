@@ -1,16 +1,17 @@
 from trading_bot import app
+from trading_bot.adapters.by_bit import AdapterByBit
 from trading_bot.adapters.ta_api import AdapterTaAPI
 from trading_bot.models.exchanges import ExchangeManager
 from trading_bot.models.indicator_values import IndicatorValueManager
 from trading_bot.models.indicators import IndicatorManager
 from trading_bot.models.symbols import SymbolManager
 from trading_bot.models.trading_systems import TradingSystemManager
-from trading_bot.services.deal_opener import DealOpener
 from trading_bot.services.decision_maker import DecisionMaker
 from trading_bot.services.decision_router import DecisionRouter
 from trading_bot.services.indicator_updater import IndicatorUpdater
-from trading_bot.services.notifier import Notifier
+from trading_bot.adapters.telegram import AdapterTelegram
 from config import Config
+from trading_bot.services.pause_checker import PauseChecker
 
 
 def create_exchanges(exchange_manager, exchanges_config):
@@ -54,12 +55,15 @@ def create_app(config_class=Config):
     create_symbols(app.symbol_manager, app.exchange_manager, config_class.SYMBOLS)
     create_trading_systems(app.trading_system_manager, config_class.TRADING_SYSTEMS_SETTINGS)
 
-    app.notifier = Notifier(
+    app.notifier = AdapterTelegram(
         token=config_class.TELEGRAM_TOKEN,
         chat_id=config_class.TELEGRAM_CHAT_ID,
     )
-    app.deal_opener = DealOpener()
-    app.decision_router = DecisionRouter(app.notifier, app.deal_opener)
+    app.dealer = AdapterByBit(
+        api_key=config_class.BY_BIT_API_KEY,
+        api_secret=config_class.BY_BIT_API_SECRET,
+    )
+    app.decision_router = DecisionRouter(app.notifier, app.dealer)
     app.decision_maker = DecisionMaker(
         app.trading_system_manager,
         app.symbol_manager,
@@ -73,6 +77,10 @@ def create_app(config_class=Config):
     app.indicator_updater = IndicatorUpdater(
         indicators_adapter=app.indicators_adapter,
         decision_maker=app.decision_maker,
+    )
+
+    app.pause_checker = PauseChecker(
+        dealer=app.dealer
     )
 
     return app

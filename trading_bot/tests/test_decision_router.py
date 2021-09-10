@@ -15,7 +15,7 @@ class TestDecisionRouter(IsolatedAsyncioTestCase):
 
     async def test_route(self):
         mock_notifier = AsyncMock()
-        mock_deal_opener = AsyncMock()
+        mock_dealer = AsyncMock()
 
         stormgain = app.exchange_manager.create('StormGain', 'send_message')
         bybit = app.exchange_manager.create('ByBit', 'open_deal')
@@ -56,15 +56,15 @@ class TestDecisionRouter(IsolatedAsyncioTestCase):
                 trading_system=tr_system
             )
 
-            await DecisionRouter(notifier=mock_notifier, deal_opener=mock_deal_opener).rout(decision)
+            await DecisionRouter(notifier=mock_notifier, dealer=mock_dealer).rout(decision)
 
-            mock_deal_opener.open_deal.assert_not_called()
+            mock_dealer.open_deal.assert_not_called()
             mock_notifier.notify.assert_called_with(msg=str(decision))
 
         with self.subTest(case='When exchange deal opening method is OPEN_DEAL, '
                                'the method should call deal opener'):
             mock_notifier.reset_mock()
-            mock_deal_opener.reset_mock()
+            mock_dealer.reset_mock()
 
             decision = DecisionMaker.Decision(
                 symbol=eth_bb,
@@ -72,15 +72,15 @@ class TestDecisionRouter(IsolatedAsyncioTestCase):
                 trading_system=tr_system
             )
 
-            await DecisionRouter(notifier=mock_notifier, deal_opener=mock_deal_opener).rout(decision)
+            await DecisionRouter(notifier=mock_notifier, dealer=mock_dealer).rout(decision)
 
-            mock_deal_opener.open_deal.assert_called_with(decision)
+            mock_dealer.open_deal.assert_called_with(decision)
             mock_notifier.notify.assert_not_called()
 
         with self.subTest(case='When symbol has exchange with both deal opening method (OPEN_DEAL and SEND_MESSAGE), '
                                'the method should call deal opener and notifier'):
             mock_notifier.reset_mock()
-            mock_deal_opener.reset_mock()
+            mock_dealer.reset_mock()
 
             decision = DecisionMaker.Decision(
                 symbol=ltc_sg_bb,
@@ -88,7 +88,7 @@ class TestDecisionRouter(IsolatedAsyncioTestCase):
                 trading_system=tr_system
             )
 
-            await DecisionRouter(notifier=mock_notifier, deal_opener=mock_deal_opener).rout(decision)
+            await DecisionRouter(notifier=mock_notifier, dealer=mock_dealer).rout(decision)
 
-            mock_deal_opener.open_deal.assert_called_with(decision)
+            mock_dealer.open_deal.assert_called_with(decision)
             mock_notifier.notify.assert_called_with(msg=str(decision))

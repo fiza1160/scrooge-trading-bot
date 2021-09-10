@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from random import random
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
 
 from trading_bot import app
@@ -10,7 +10,7 @@ from trading_bot.tests.helpers import reset_managers
 from trading_bot.tests.test_trading_systems import TradingSystemSettingsLoader
 
 
-class TestDecisionMaker(TestCase):
+class TestDecisionMaker(IsolatedAsyncioTestCase):
 
     def setUp(self) -> None:
         reset_managers()
