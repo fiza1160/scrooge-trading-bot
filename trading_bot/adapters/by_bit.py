@@ -40,7 +40,7 @@ class AdapterByBit:
         msg = f'I just opened a deal (ByBit). ({decision})'
         print(msg)
 
-        app.notifier.notify(msg=msg)
+        await app.notifier.notify(msg=msg)
 
     async def _create_order(
             self,
