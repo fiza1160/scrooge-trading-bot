@@ -14,4 +14,7 @@ class PauseChecker:
     async def _check_open_deals(self):
         for symbol in app.symbol_manager.list():
             if symbol.pause:
-                symbol.pause = await self._dealer.symbol_has_open_deal(symbol=symbol)
+                if app.exchange_manager.get('ByBit') in symbol.exchanges:
+                    symbol.pause = await self._dealer.symbol_has_open_deal(symbol=symbol)
+                else:
+                    symbol.pause = False
