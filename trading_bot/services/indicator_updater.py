@@ -24,6 +24,11 @@ class IndicatorUpdater:
             if self._values_updated:
                 await self._call_decision_maker()
 
+            # TODO add logger
+            msg = f'I just updated indicator values. ' \
+                  f'Next update at {datetime.now() + timedelta(seconds=app.indicator_update_timeout)}'
+            print(msg)
+
             await asyncio.sleep(app.indicator_update_timeout)
 
     async def _update(self) -> None:
