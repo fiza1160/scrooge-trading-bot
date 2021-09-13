@@ -55,7 +55,7 @@ class IndicatorUpdater:
         last_update_time = self._last_updates.get(indicator)
         if not last_update_time:
             its_time = True
-        elif (last_update_time + timedelta(seconds=indicator.interval.timeout)) <= datetime.now():
+        elif (last_update_time + timedelta(seconds=(indicator.interval.timeout / 2))) <= datetime.now():
             its_time = True
 
         return its_time
