@@ -20,7 +20,7 @@ class IndicatorUpdater:
     async def run(self) -> None:
         while True:
             # TODO add logger
-            msg = f'I started to update the values of the indicators.'
+            msg = f'I started to update indicator values.'
             print(msg)
 
             self._values_updated = False
