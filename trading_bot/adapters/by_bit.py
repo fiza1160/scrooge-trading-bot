@@ -18,22 +18,14 @@ class AdapterByBit:
 
     async def open_deal(self, decision):
 
+        current_price = await self._get_current_price(
+            symbol=decision.symbol,
+        )
+
         await self._create_order(
             side=decision.side,
             symbol=decision.symbol,
-        )
-
-        position_info = await self._get_position_info(
-            symbol=decision.symbol,
-            side=decision.side,
-        )
-
-        entry_price = position_info['entry_price']
-
-        await self._set_stop_orders(
-            side=decision.side,
-            symbol=decision.symbol,
-            entry_price=entry_price,
+            current_price=current_price,
         )
 
         # TODO add logger
@@ -42,13 +34,36 @@ class AdapterByBit:
 
         await app.notifier.notify(msg=msg)
 
+    async def _get_current_price(
+            self,
+            symbol: Symbol,
+    ) -> float:
+
+        params = {
+            'symbol': self._get_symbol_alias(symbol),
+        }
+        url = f'{self._url}/v2/public/tickers'
+        response = requests.get(url, params=params)
+
+        resp = response.json()
+        if resp['ret_msg'] != 'OK':
+            # TODO add logger
+            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            raise RuntimeError
+
+        current_price = float(resp['result'][0]['last_price'])
+
+        return current_price
+
     async def _create_order(
             self,
             side: DealSide,
             symbol: Symbol,
+            current_price: float,
     ):
 
         timestamp_ms = int(time.time() * 1000.0)
+
         params = {
             'api_key': self._api_key,
             'close_on_trigger': False,
@@ -56,7 +71,9 @@ class AdapterByBit:
             'qty': symbol.deal_opening_params.qty,
             'reduce_only': False,
             'side': side.name.capitalize(),
+            'stop_loss': self._get_stop_loss(side, current_price),
             'symbol': self._get_symbol_alias(symbol),
+            'take_profit': self._get_take_profit(side, current_price),
             'time_in_force': 'GoodTillCancel',
             'timestamp': timestamp_ms,
         }
@@ -79,81 +96,6 @@ class AdapterByBit:
             base_currency=symbol.base_currency,
             quote_currency=symbol.quote_currency,
         )
-
-    def _sing_request_params(self, params):
-        ordered_params = ""
-        for key in sorted(params):
-            ordered_params += f'{key}={params[key]}&'
-        ordered_params = ordered_params[:-1]
-
-        return hmac.new(
-            bytes(self._api_secret, "utf-8"),
-            ordered_params.encode("utf-8"),
-            hashlib.sha256
-        ).hexdigest()
-
-    async def _get_position_info(
-            self,
-            symbol: Symbol,
-            side: DealSide
-    ):
-        resp = await self._get_position_by_symbol(symbol)
-
-        if side is DealSide.BUY:
-            position_info = resp['result'][0]
-        else:
-            position_info = resp['result'][1]
-
-        return position_info
-
-    async def _get_position_by_symbol(self, symbol):
-        timestamp_ms = int(time.time() * 1000.0)
-        params = {
-            'api_key': self._api_key,
-            'symbol': self._get_symbol_alias(symbol),
-            'timestamp': timestamp_ms,
-        }
-        params['sign'] = self._sing_request_params(params)
-        url = f'{self._url}private/linear/position/list'
-        response = requests.get(url, params=params)
-        resp = response.json()
-        if resp['ret_msg'] != 'OK':
-            # TODO add logger
-            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
-            raise RuntimeError
-        return resp
-
-    async def _set_stop_orders(
-            self,
-            side: DealSide,
-            symbol: Symbol,
-            entry_price: float
-    ):
-        stop_loss = self._get_stop_loss(side, entry_price)
-        take_profit = self._get_take_profit(side, entry_price)
-
-        timestamp_ms = int(time.time() * 1000.0)
-        params = {
-            'api_key': self._api_key,
-            'side': side.name.capitalize(),
-            'stop_loss': stop_loss,
-            'symbol': self._get_symbol_alias(symbol),
-            'take_profit': take_profit,
-            'timestamp': timestamp_ms,
-        }
-
-        params['sign'] = self._sing_request_params(params)
-
-        url = f'{self._url}private/linear/position/trading-stop'
-        response = requests.post(url, params=params)
-        resp = response.json()
-
-        if resp['ret_msg'] != 'OK':
-            # TODO add logger
-            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
-            raise RuntimeError
-
-        return resp
 
     @staticmethod
     def _get_stop_loss(
@@ -181,6 +123,18 @@ class AdapterByBit:
 
         return round(tp_price, 2)
 
+    def _sing_request_params(self, params):
+        ordered_params = ""
+        for key in sorted(params):
+            ordered_params += f'{key}={params[key]}&'
+        ordered_params = ordered_params[:-1]
+
+        return hmac.new(
+            bytes(self._api_secret, "utf-8"),
+            ordered_params.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+
     async def symbol_has_open_deal(self, symbol):
         response = await self._get_position_by_symbol(symbol)
 
@@ -190,3 +144,20 @@ class AdapterByBit:
                 has_open_deals = True
 
         return has_open_deals
+
+    async def _get_position_by_symbol(self, symbol):
+        timestamp_ms = int(time.time() * 1000.0)
+        params = {
+            'api_key': self._api_key,
+            'symbol': self._get_symbol_alias(symbol),
+            'timestamp': timestamp_ms,
+        }
+        params['sign'] = self._sing_request_params(params)
+        url = f'{self._url}private/linear/position/list'
+        response = requests.get(url, params=params)
+        resp = response.json()
+        if resp['ret_msg'] != 'OK':
+            # TODO add logger
+            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            raise RuntimeError
+        return resp

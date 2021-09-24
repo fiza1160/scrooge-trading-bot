@@ -33,11 +33,15 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
         with self.subTest(case='...'):
             pass
 
-    def test__get_symbol_alias(self):
+    async def test__get_current_price(self):
         with self.subTest(case='...'):
             pass
 
-    def test__sing_request_params(self):
+    async def test__create_order(self):
+        with self.subTest(case='...'):
+            pass
+
+    def test__get_symbol_alias(self):
         with self.subTest(case='...'):
             pass
 
@@ -49,18 +53,14 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
         with self.subTest(case='...'):
             pass
 
-    async def test__create_order(self):
+    def test__sing_request_params(self):
+        with self.subTest(case='...'):
+            pass
+
+    async def test_symbol_has_open_deal(self):
         with self.subTest(case='...'):
             pass
 
     async def test__get_open_positions(self):
-        with self.subTest(case='...'):
-            pass
-
-    async def test__set_stop_orders(self):
-        with self.subTest(case='...'):
-            pass
-
-    async def test_get_open_deal_list(self):
         with self.subTest(case='...'):
             pass
