@@ -1,8 +1,11 @@
 import asyncio
+import logging
 import requests
 
 from trading_bot.models.indicators import Indicator
 from trading_bot.models.symbols import Symbol
+
+logger = logging.getLogger('logger')
 
 
 class AdapterTaAPI:
@@ -32,12 +35,10 @@ class AdapterTaAPI:
         url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'
         response = requests.get(url, params=params)
         if response.status_code != 200:
-            # TODO add logger
-            print(f'{symbol} {response.text}')
+            logger.error(f'{symbol} {response.text}')
             return
         resp = self._parse_response(response=response.json())
-        # TODO add logger
-        print(f'{symbol} {indicator} {resp}')
+        logger.info(f'{symbol} {indicator} {resp}')
 
         return resp
 

@@ -1,3 +1,5 @@
+import logging
+
 from trading_bot import app
 from trading_bot.adapters.by_bit import AdapterByBit
 from trading_bot.adapters.ta_api import AdapterTaAPI
@@ -45,6 +47,13 @@ def create_trading_systems(trading_system_manager, trading_systems_config):
 
 
 def create_app(config_class=Config):
+    logger = logging.getLogger('logger')
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter(fmt='[%(levelname)s] %(message)s'))
+    logger.addHandler(stream_handler)
+    logger.setLevel(logging.INFO)
+    logger.info("I'm up and running")
+
     app.indicator_manager = IndicatorManager()
     app.indicator_value_manager = IndicatorValueManager()
     app.exchange_manager = ExchangeManager()

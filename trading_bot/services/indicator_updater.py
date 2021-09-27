@@ -1,8 +1,11 @@
 import asyncio
 from datetime import datetime, timedelta
+import logging
 
 from trading_bot import app
 from trading_bot.models.indicators import Indicator
+
+logger = logging.getLogger('logger')
 
 
 class IndicatorUpdater:
@@ -19,19 +22,15 @@ class IndicatorUpdater:
 
     async def run(self) -> None:
         while True:
-            # TODO add logger
-            msg = f'I started to update indicator values.'
-            print(msg)
+            logger.info(f'I started to update indicator values.')
 
             self._values_updated = False
             await self._update()
             if self._values_updated:
                 await self._call_decision_maker()
 
-            # TODO add logger
-            msg = f'I just updated indicator values. ' \
-                  f'Next update at {datetime.now() + timedelta(seconds=app.indicator_update_timeout)}'
-            print(msg)
+            logger.info(f'I just updated indicator values. '
+                        f'Next update at {datetime.now() + timedelta(seconds=app.indicator_update_timeout)}')
 
             await asyncio.sleep(app.indicator_update_timeout)
 

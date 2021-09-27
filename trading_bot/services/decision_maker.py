@@ -1,9 +1,12 @@
 from enum import Enum, auto
+import logging
 
 from trading_bot.models.indicator_values import IndicatorValueManager, IndicatorValue
 from trading_bot.models.symbols import Symbol, SymbolManager
 from trading_bot.models.trading_systems import TradingSystem, TradingSystemManager, Condition
 from trading_bot.services.decision_router import DecisionRouter
+
+logger = logging.getLogger('logger')
 
 
 class DealSide(Enum):
@@ -66,8 +69,7 @@ class DecisionMaker:
                 side=side,
                 trading_system=trading_system,
             )
-        # TODO add logger
-        print(decision)
+        logger.info(f'{decision}')
 
         await self._decision_router.rout(decision=decision)
 

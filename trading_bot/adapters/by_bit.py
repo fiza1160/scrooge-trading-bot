@@ -1,12 +1,15 @@
 import hashlib
 import hmac
 import time
+import logging
 
 import requests
 
 from trading_bot import app
 from trading_bot.models.symbols import Symbol
 from trading_bot.services.decision_maker import DealSide
+
+logger = logging.getLogger('logger')
 
 
 class AdapterByBit:
@@ -28,10 +31,8 @@ class AdapterByBit:
             current_price=current_price,
         )
 
-        # TODO add logger
         msg = f'I just opened a deal (ByBit). ({decision})'
-        print(msg)
-
+        logger.info(msg)
         await app.notifier.notify(msg=msg)
 
     async def _get_current_price(
@@ -47,8 +48,7 @@ class AdapterByBit:
 
         resp = response.json()
         if resp['ret_msg'] != 'OK':
-            # TODO add logger
-            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
             raise RuntimeError
 
         current_price = float(resp['result'][0]['last_price'])
@@ -85,8 +85,7 @@ class AdapterByBit:
         resp = response.json()
 
         if resp['ret_msg'] != 'OK':
-            # TODO add logger
-            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
             raise RuntimeError
 
         return resp
@@ -157,7 +156,6 @@ class AdapterByBit:
         response = requests.get(url, params=params)
         resp = response.json()
         if resp['ret_msg'] != 'OK':
-            # TODO add logger
-            print(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
             raise RuntimeError
         return resp
