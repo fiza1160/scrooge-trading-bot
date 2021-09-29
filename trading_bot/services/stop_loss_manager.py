@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from trading_bot import app
 from trading_bot.models.symbols import Symbol
