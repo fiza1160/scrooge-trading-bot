@@ -2,7 +2,6 @@ from trading_bot.models.exchanges import Exchange
 
 
 class Symbol:
-
     class DealOpeningParams:
         def __init__(
                 self,
@@ -45,7 +44,6 @@ class SymbolManager:
             exchanges: [Exchange],
             deal_opening_params: {},
     ) -> Symbol:
-
         symbol = Symbol(
             base_currency=base_currency,
             quote_currency=quote_currency,
@@ -59,3 +57,12 @@ class SymbolManager:
 
     def list(self) -> [Symbol]:
         return self._symbols.copy()
+
+    def find_by_alias(self, alias: str, alias_template: str) -> Symbol or None:
+        for symbol in self.list():
+            if alias_template.format(
+                    base_currency=symbol.base_currency,
+                    quote_currency=symbol.quote_currency,
+            ) == alias:
+                return symbol
+        return None

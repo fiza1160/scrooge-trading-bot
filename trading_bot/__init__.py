@@ -11,6 +11,7 @@ from trading_bot.models.trading_systems import TradingSystemManager
 from trading_bot.services.decision_maker import DecisionMaker
 from trading_bot.services.decision_router import DecisionRouter
 from trading_bot.services.indicator_updater import IndicatorUpdater
+from trading_bot.services.stop_loss_manager import StopLossManager
 from trading_bot.adapters.telegram import AdapterTelegram
 from config import Config
 from trading_bot.services.pause_checker import PauseChecker

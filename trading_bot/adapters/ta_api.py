@@ -18,6 +18,7 @@ class AdapterTaAPI:
         self._endpoints = {
             'Momentum': 'mom',
             'MovingAverage': 'ma',
+            'ParabolicSAR': 'sar',
         }
 
     async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
@@ -29,7 +30,7 @@ class AdapterTaAPI:
             'exchange': 'binance',
             'symbol': self._get_symbol_alias(symbol),
             'interval': indicator.interval.name,
-            'backtracks': indicator.period,
+            'backtracks': 2,
         }
 
         url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'

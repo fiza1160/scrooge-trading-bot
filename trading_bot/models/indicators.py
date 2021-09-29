@@ -22,7 +22,7 @@ class Indicator:
             name: str,
             indicator_type: str,
             interval: Interval,
-            period: int,
+            period: int = None,
     ):
         self.name = name
         self.indicator_type = indicator_type
@@ -47,7 +47,7 @@ class IndicatorManager:
             name: str,
             indicator_type: str,
             interval: str,
-            period: int,
+            period: int = None,
     ) -> Indicator:
         indicator = Indicator(
             name=name,

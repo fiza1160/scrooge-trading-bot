@@ -107,3 +107,33 @@ class TestSymbolManager(TestCase):
 
             self.assertEqual(len(sym_manager.list()), 10)
             self.assertEqual(created_symbols, sym_manager.list())
+
+    def test_find_by_alias(self):
+        test_exchange = app.exchange_manager.create(name='TestExchange', deal_opening_method='send_message')
+
+        sym_manager = SymbolManager()
+        btc = sym_manager.create(
+            base_currency='BTC',
+            quote_currency='USDT',
+            exchanges=[test_exchange],
+            deal_opening_params={'qty': 0.003}
+        )
+        sym_manager.create(
+            base_currency='LTC',
+            quote_currency='USDT',
+            exchanges=[test_exchange],
+            deal_opening_params={'qty': 0.003}
+        )
+        sym_manager.create(
+            base_currency='BCH',
+            quote_currency='USDT',
+            exchanges=[test_exchange],
+            deal_opening_params={'qty': 0.003}
+        )
+        alias_template = '{base_currency}{quote_currency}'
+
+        with self.subTest(case='Method should return the character with the correct alias'):
+            self.assertEqual(sym_manager.find_by_alias(alias='BTCUSDT', alias_template=alias_template), btc)
+
+        with self.subTest(case='If there is no matching character, the method should return None'):
+            self.assertIsNone(sym_manager.find_by_alias(alias='FILUSDT', alias_template=alias_template))

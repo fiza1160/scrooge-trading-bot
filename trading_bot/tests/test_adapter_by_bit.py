@@ -49,9 +49,6 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
         with self.subTest(case='...'):
             pass
 
-    def test__get_take_profit(self):
-        with self.subTest(case='...'):
-            pass
 
     def test__sing_request_params(self):
         with self.subTest(case='...'):
@@ -62,5 +59,9 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
             pass
 
     async def test__get_open_positions(self):
+        with self.subTest(case='...'):
+            pass
+
+    async def test_set_stop_loss(self):
         with self.subTest(case='...'):
             pass

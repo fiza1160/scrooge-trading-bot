@@ -12,7 +12,27 @@ from trading_bot.services.decision_maker import DealSide
 logger = logging.getLogger('logger')
 
 
+class Deal:
+    def __init__(
+            self,
+            symbol: Symbol,
+            side: DealSide,
+            size: float,
+            entry_price: float,
+            stop_loss: float,
+            take_profit: float,
+    ):
+        self.symbol = symbol
+        self.side = side
+        self.size = size
+        self.entry_price = entry_price
+        self.stop_loss = stop_loss
+        self.take_profit = take_profit
+
+
+# TODO refactor (Too many classes interact directly with the adapter)
 class AdapterByBit:
+
     def __init__(self, api_key: str, api_secret: str):
         self._api_key = api_key
         self._api_secret = api_secret
@@ -73,7 +93,6 @@ class AdapterByBit:
             'side': side.name.capitalize(),
             'stop_loss': self._get_stop_loss(side, current_price),
             'symbol': self._get_symbol_alias(symbol),
-            'take_profit': self._get_take_profit(side, current_price),
             'time_in_force': 'GoodTillCancel',
             'timestamp': timestamp_ms,
         }
@@ -109,19 +128,6 @@ class AdapterByBit:
 
         return round(sl_price, 2)
 
-    @staticmethod
-    def _get_take_profit(
-            side: DealSide,
-            entry_price: float
-    ):
-        tp_percent = 0.02
-        if side is DealSide.BUY:
-            tp_price = entry_price * (1 + tp_percent)
-        else:
-            tp_price = entry_price * (1 - tp_percent)
-
-        return round(tp_price, 2)
-
     def _sing_request_params(self, params):
         ordered_params = ""
         for key in sorted(params):
@@ -135,7 +141,7 @@ class AdapterByBit:
         ).hexdigest()
 
     async def symbol_has_open_deal(self, symbol):
-        response = await self._get_position_by_symbol(symbol)
+        response = await self._get_positions_by_symbol(symbol)
 
         has_open_deals = False
         for res in response.get('result'):
@@ -144,7 +150,30 @@ class AdapterByBit:
 
         return has_open_deals
 
-    async def _get_position_by_symbol(self, symbol):
+    async def get_deals_by_symbol(self, symbol):
+
+        response = await self._get_positions_by_symbol(symbol)
+
+        deals = []
+        for res in response.get('result'):
+            if res['size'] != 0:
+                deals.append(
+                    Deal(
+                        symbol=app.symbol_manager.find_by_alias(
+                            alias=res['symbol'],
+                            alias_template=self._symbol_template,
+                        ),
+                        side=DealSide[res['side'].upper()],
+                        size=res['size'],
+                        entry_price=res['entry_price'],
+                        stop_loss=res['stop_loss'],
+                        take_profit=res['take_profit'],
+                    )
+                )
+
+        return deals
+
+    async def _get_positions_by_symbol(self, symbol):
         timestamp_ms = int(time.time() * 1000.0)
         params = {
             'api_key': self._api_key,
@@ -158,4 +187,27 @@ class AdapterByBit:
         if resp['ret_msg'] != 'OK':
             logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
             raise RuntimeError
+        return resp
+
+    async def set_stop_loss(self, deal, stop_loss):
+        timestamp_ms = int(time.time() * 1000.0)
+
+        params = {
+            'api_key': self._api_key,
+            'side': deal.side.name.capitalize(),
+            'stop_loss': round(stop_loss, 2),
+            'symbol': self._get_symbol_alias(deal.symbol),
+            'timestamp': timestamp_ms,
+        }
+
+        params['sign'] = self._sing_request_params(params)
+
+        url = f'{self._url}private/linear/position/trading-stop'
+        response = requests.post(url, params=params)
+        resp = response.json()
+
+        if resp['ret_msg'] != 'OK':
+            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}')
+            raise RuntimeError
+
         return resp

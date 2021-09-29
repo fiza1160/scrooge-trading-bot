@@ -24,9 +24,9 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         reset_managers()
 
-    @patch('trading_bot.adapters.ta_api.print')
+    @patch('trading_bot.adapters.ta_api.logger')
     @patch('trading_bot.adapters.ta_api.requests.get')
-    async def test_get_indicator_values(self, mock_get, mock_print):
+    async def test_get_indicator_values(self, mock_get, mock_logger):
         with self.subTest(case='Check request params and returned indicator values'):
             mock_response = Mock()
             mock_response.status_code = 200
@@ -95,7 +95,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
                 indicator=indicator,
             )
 
-            mock_print.assert_called_with('BTCUSDT test response text')
+            mock_logger.info.assert_called_once()
 
     async def test__parse_response(self):
         with self.subTest(case='Test response parser'):
