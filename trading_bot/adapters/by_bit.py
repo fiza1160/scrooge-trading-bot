@@ -120,7 +120,7 @@ class AdapterByBit:
             side: DealSide,
             entry_price: float
     ):
-        sl_percent = 0.01
+        sl_percent = 0.03
         if side is DealSide.BUY:
             sl_price = entry_price * (1 - sl_percent)
         else:
