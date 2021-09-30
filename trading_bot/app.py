@@ -12,6 +12,7 @@ decision_maker = None
 indicator_updater = None
 indicators_adapter = None
 pause_checker = None
+stop_loss_manager = None
 indicator_update_timeout = 60
 
 
@@ -30,7 +31,13 @@ async def _create_tasks():
         name='Pause Checker'
     )
 
+    task_stop_loss_manager = asyncio.create_task(
+        stop_loss_manager.run(),
+        name='Stop Loss Manager'
+    )
+
     await asyncio.gather(
         task_indicator_updater,
         task_pause_checker,
+        task_stop_loss_manager,
     )

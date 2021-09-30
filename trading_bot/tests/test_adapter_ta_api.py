@@ -62,7 +62,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
                 'exchange': 'binance',
                 'symbol': f'{symbol.base_currency}/{symbol.quote_currency}',
                 'interval': indicator.interval.name,
-                'backtracks': indicator.period,
+                'backtracks': 2,
             }
 
             mock_get.assert_called_with(url, params=params)

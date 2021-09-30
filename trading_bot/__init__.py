@@ -93,4 +93,6 @@ def create_app(config_class=Config):
         dealer=app.dealer
     )
 
+    app.stop_loss_manager = StopLossManager()
+
     return app
