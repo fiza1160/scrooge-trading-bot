@@ -29,15 +29,11 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
             trading_system=MagicMock()
         )
 
-    async def test_open_deal(self):
+    async def test_get_current_price(self):
         with self.subTest(case='...'):
             pass
 
-    async def test__get_current_price(self):
-        with self.subTest(case='...'):
-            pass
-
-    async def test__create_order(self):
+    async def test_create_order(self):
         with self.subTest(case='...'):
             pass
 
@@ -45,20 +41,11 @@ class TestAdapterByBit(IsolatedAsyncioTestCase):
         with self.subTest(case='...'):
             pass
 
-    def test__get_stop_loss(self):
-        with self.subTest(case='...'):
-            pass
-
-
     def test__sing_request_params(self):
         with self.subTest(case='...'):
             pass
 
-    async def test_symbol_has_open_deal(self):
-        with self.subTest(case='...'):
-            pass
-
-    async def test__get_open_positions(self):
+    async def test_get_open_positions(self):
         with self.subTest(case='...'):
             pass
 
