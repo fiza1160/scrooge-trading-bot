@@ -33,6 +33,9 @@ class AdapterTaAPI:
             'backtracks': 2,
         }
 
+        if indicator.period:
+            params['optInTimePeriod'] = indicator.period
+
         url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'
         response = requests.get(url, params=params)
         if response.status_code != 200:
