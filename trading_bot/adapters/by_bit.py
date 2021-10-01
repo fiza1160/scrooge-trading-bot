@@ -113,7 +113,7 @@ class AdapterByBit:
         params = {
             'api_key': self._api_key,
             'side': deal.side.name.capitalize(),
-            'stop_loss': round(stop_loss, 2),
+            'stop_loss': round(stop_loss, 1),
             'symbol': self._get_symbol_alias(deal.symbol),
             'timestamp': timestamp_ms,
         }

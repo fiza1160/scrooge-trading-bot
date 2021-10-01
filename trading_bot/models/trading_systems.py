@@ -92,7 +92,7 @@ class Condition:
         self.first_operand = first_operand
         self.operator = operator
         self.second_operand = second_operand
-        self.operator_methods = {
+        self._operator_methods = {
             '>': self._more_than,
             '<': self._less_than,
             '=': self._equal,
@@ -105,7 +105,7 @@ class Condition:
         return f'{self.first_operand} {self.operator} {self.second_operand}'
 
     def is_satisfied(self, first_operand_value: float, second_operand_value: float) -> bool:
-        return self.operator_methods[self.operator](first_operand_value, second_operand_value)
+        return self._operator_methods[self.operator](first_operand_value, second_operand_value)
 
     @staticmethod
     def _less_than(first_operand_value: float, second_operand_value: float) -> bool:
