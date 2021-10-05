@@ -12,7 +12,7 @@ class IndicatorInformer:
 
     async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
         try:
-            await self._indicators_adapter.get_indicator_values(symbol=symbol, indicator=indicator)
+            return await self._indicators_adapter.get_indicator_values(symbol=symbol, indicator=indicator)
         except Warning:
             logger.warning(f'I did not get {indicator} values for {symbol}')
             raise Warning

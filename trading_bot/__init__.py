@@ -52,7 +52,7 @@ def create_trading_systems(trading_system_manager, trading_systems_config):
 def create_app(config_class=Config):
     logger = logging.getLogger('logger')
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter(fmt='[%(levelname)s] %(message)s'))
+    stream_handler.setFormatter(logging.Formatter(fmt='[%(levelname)s] [%(module)s] %(message)s'))
     logger.addHandler(stream_handler)
     logger.setLevel(logging.INFO)
     logger.info("I'm up and running")
