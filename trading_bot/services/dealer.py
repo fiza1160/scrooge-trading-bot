@@ -91,5 +91,8 @@ class Dealer:
 
         return deals
 
+    async def get_current_price(self, symbol: Symbol):
+        await self._deals_adapter.get_current_price(symbol=symbol)
+
     async def set_stop_loss(self, deal, stop_loss):
         await self._deals_adapter.set_stop_loss(deal, stop_loss)

@@ -3,6 +3,7 @@ import logging
 
 from trading_bot import app
 from trading_bot.models.symbols import Symbol
+from trading_bot.services.dealer import Deal
 from trading_bot.services.decision_maker import DealSide
 
 logger = logging.getLogger('logger')
@@ -28,8 +29,9 @@ class StopLossManager:
         symbols = self._get_symbols_with_open_deals()
         for symbol in symbols:
             deals = await app.dealer.get_deals_by_symbol(symbol)
+            current_price = await app.dealer.get_current_price(symbol=symbol)
             for deal in deals:
-                stop_loss = await self._get_new_stop_loss_value(deal)
+                stop_loss = await self._get_new_stop_loss_value(deal=deal, current_price=current_price)
                 await app.dealer.set_stop_loss(deal, stop_loss)
 
                 logger.info(f'I just updated stop loss for {deal.symbol}')
@@ -46,18 +48,21 @@ class StopLossManager:
 
     async def _get_new_stop_loss_value(
             self,
-            deal,
+            deal: Deal,
+            current_price: float,
     ) -> float:
 
-        sl_indicator_value = await app.indicators_adapter.get_indicator_values(
+        indicator_value = await app.indicators_adapter.get_indicator_values(
             symbol=deal.symbol,
             indicator=self._stop_loss_indicator,
         )
-        sl_indicator_value = sl_indicator_value['present_value']
+        indicator_value = indicator_value['present_value']
+
+        current_stop_loss = deal.stop_loss
 
         if deal.side == DealSide.BUY:
-            new_sl = sl_indicator_value if sl_indicator_value > deal.stop_loss else deal.stop_loss
+            new_sl = indicator_value if current_price > indicator_value > current_stop_loss else current_stop_loss
         else:
-            new_sl = sl_indicator_value if sl_indicator_value < deal.stop_loss else deal.stop_loss
+            new_sl = indicator_value if current_price < indicator_value < current_stop_loss else current_stop_loss
 
         return new_sl
