@@ -11,6 +11,7 @@ deals_adapter = None
 decision_router = None
 decision_maker = None
 indicator_updater = None
+indicator_informer = None
 indicators_adapter = None
 pause_checker = None
 stop_loss_manager = None

@@ -11,6 +11,7 @@ from trading_bot.models.trading_systems import TradingSystemManager
 from trading_bot.services.dealer import Dealer
 from trading_bot.services.decision_maker import DecisionMaker
 from trading_bot.services.decision_router import DecisionRouter
+from trading_bot.services.indicator_informer import IndicatorInformer
 from trading_bot.services.indicator_updater import IndicatorUpdater
 from trading_bot.services.stop_loss_manager import StopLossManager
 from trading_bot.adapters.telegram import AdapterTelegram
@@ -87,8 +88,9 @@ def create_app(config_class=Config):
         api_key=config_class.TA_API_KEY,
         timeout=config_class.TA_API_TIMEOUT
     )
+    app.indicator_informer = IndicatorInformer(indicators_adapter=app.indicators_adapter)
     app.indicator_updater = IndicatorUpdater(
-        indicators_adapter=app.indicators_adapter,
+        indicator_informer=app.indicator_informer,
         decision_maker=app.decision_maker,
     )
 

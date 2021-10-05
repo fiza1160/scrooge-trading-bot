@@ -12,12 +12,12 @@ class IndicatorUpdater:
 
     def __init__(
             self,
-            indicators_adapter,
+            indicator_informer,
             decision_maker,
     ) -> None:
         self._last_updates = {}
         self._values_updated = False
-        self._indicators_adapter = indicators_adapter
+        self._indicator_informer = indicator_informer
         self._decision_maker = decision_maker
 
     async def run(self) -> None:
@@ -71,7 +71,7 @@ class IndicatorUpdater:
         for symbol in symbols:
             if not symbol.pause:
                 try:
-                    new_values = await self._indicators_adapter.get_indicator_values(
+                    new_values = await self._indicator_informer.get_indicator_values(
                         symbol=symbol,
                         indicator=indicator
                     )

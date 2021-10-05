@@ -72,7 +72,7 @@ class StopLossManager:
     ) -> float:
 
         try:
-            indicator_value = await app.indicators_adapter.get_indicator_values(
+            indicator_value = await app.indicator_informer.get_indicator_values(
                 symbol=deal.symbol,
                 indicator=self._stop_loss_indicator,
             )

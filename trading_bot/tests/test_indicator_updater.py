@@ -44,7 +44,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                                'IndicatorUpdater should fill self._last_updates '
                                'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
             await ind_updater._update()
@@ -72,7 +72,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             mock_datetime.now.return_value = time_now
 
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
 
@@ -106,7 +106,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             mock_datetime.now.return_value = time_now
 
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
 
@@ -141,7 +141,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             mock_datetime.now.return_value = time_now
 
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
 
@@ -182,7 +182,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
         with self.subTest(case='When self._last_updates is empty '
                                '_its_time_to_update should return True'):
             self.assertTrue(IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )._its_time_to_update(indicator))
 
@@ -196,7 +196,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             )
 
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
             ind_updater._last_updates[indicator_2] = datetime.now()
@@ -211,7 +211,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                 mock_datetime.now.return_value = datetime_now
 
                 ind_updater = IndicatorUpdater(
-                    indicators_adapter=MagicMock(),
+                    indicator_informer=MagicMock(),
                     decision_maker=MagicMock()
                 )
                 ind_updater._last_updates[indicator] = datetime_now - timedelta(seconds=indicator.interval.timeout)
@@ -222,7 +222,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                                'and last_update_time + indicator.interval.timeout > datetime.now()'
                                '_its_time_to_update should return True'):
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
             ind_updater._last_updates[indicator] = (datetime.now() -
@@ -235,7 +235,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                                'and last_update_time + indicator.interval.timeout < datetime.now()'
                                '_its_time_to_update should return False'):
             ind_updater = IndicatorUpdater(
-                indicators_adapter=MagicMock(),
+                indicator_informer=MagicMock(),
                 decision_maker=MagicMock()
             )
             ind_updater._last_updates[indicator] = datetime.now() - timedelta(seconds=20)
@@ -264,7 +264,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
 
             with self.assertRaises(ValueError):
                 await IndicatorUpdater(
-                    indicators_adapter=mock_taapi_adapter,
+                    indicator_informer=mock_taapi_adapter,
                     decision_maker=MagicMock()
                 )._update_indicator_values(indicator)
 
@@ -283,7 +283,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             btc.pause = True
 
             await IndicatorUpdater(
-                indicators_adapter=mock_taapi_adapter,
+                indicator_informer=mock_taapi_adapter,
                 decision_maker=MagicMock()
             )._update_indicator_values(indicator)
 
@@ -308,7 +308,7 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             )
 
             await IndicatorUpdater(
-                indicators_adapter=mock_taapi_adapter,
+                indicator_informer=mock_taapi_adapter,
                 decision_maker=MagicMock()
             )._update_indicator_values(indicator)
 
