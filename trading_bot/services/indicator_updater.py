@@ -76,7 +76,7 @@ class IndicatorUpdater:
                         indicator=indicator
                     )
                 except Warning:
-                    logger.error(f'I did not get the new indicator values for {symbol}')
+                    logger.warning(f'I did not get the new indicator values for {symbol}')
                     continue
 
                 app.indicator_value_manager.update(

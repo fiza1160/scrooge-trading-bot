@@ -32,7 +32,7 @@ class AdapterByBit:
 
         resp = response.json()
         if resp['ret_msg'] != 'OK':
-            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
+            logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
                          f'{params}')
             raise Warning
 
@@ -69,7 +69,7 @@ class AdapterByBit:
         resp = response.json()
 
         if resp['ret_msg'] != 'OK':
-            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
+            logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
                          f'{params}')
             raise Warning
 
@@ -105,7 +105,7 @@ class AdapterByBit:
         response = requests.get(url, params=params)
         resp = response.json()
         if resp['ret_msg'] != 'OK':
-            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
+            logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
                          f'{params}')
             raise Warning
         return resp
@@ -128,7 +128,7 @@ class AdapterByBit:
         resp = response.json()
 
         if resp['ret_msg'] != 'OK':
-            logger.error(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
+            logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
                          f'{params}')
             raise Warning
 

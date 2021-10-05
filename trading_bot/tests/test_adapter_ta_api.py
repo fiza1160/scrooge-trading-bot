@@ -106,7 +106,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
                     indicator=indicator,
                 )
 
-            mock_logger.error.assert_called_once()
+            mock_logger.warning.assert_called_once()
 
     async def test__parse_response(self):
         with self.subTest(case='Test response parser'):

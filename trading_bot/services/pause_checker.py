@@ -22,6 +22,6 @@ class PauseChecker:
                     try:
                         symbol.pause = await self._dealer.symbol_has_open_deal(symbol=symbol)
                     except Warning:
-                        logger.error(f'I did not update pause for {symbol}')
+                        logger.warning(f'I did not update pause for {symbol}')
                 else:
                     symbol.pause = False

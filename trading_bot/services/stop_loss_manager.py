@@ -31,26 +31,26 @@ class StopLossManager:
             try:
                 deals = await app.dealer.get_deals_by_symbol(symbol)
             except Warning:
-                logger.error(f'I did not get deals info for {symbol} and did not update stop loss')
+                logger.warning(f'I did not get deals info for {symbol} and did not update stop loss')
                 continue
 
             try:
                 current_price = await app.dealer.get_current_price(symbol=symbol)
             except Warning:
-                logger.error(f'I did not get the current price for {symbol} and did not update stop loss')
+                logger.warning(f'I did not get the current price for {symbol} and did not update stop loss')
                 continue
 
             for deal in deals:
                 try:
                     stop_loss = await self._get_new_stop_loss_value(deal=deal, current_price=current_price)
                 except Warning:
-                    logger.error(f'I did not get new stop loss value for {deal}')
+                    logger.warning(f'I did not get new stop loss value for {deal}')
                     continue
 
                 try:
                     await app.dealer.set_stop_loss(deal, stop_loss)
                 except Warning:
-                    logger.error(f'I did not set new stop loss for {deal}')
+                    logger.warning(f'I did not set new stop loss for {deal}')
                     continue
 
                 logger.info(f'I just updated stop loss for {deal.symbol}')
@@ -77,7 +77,7 @@ class StopLossManager:
                 indicator=self._stop_loss_indicator,
             )
         except Warning:
-            logger.error(f'I did not get the new stop loss values for {deal.symbol}')
+            logger.warning(f'I did not get the new stop loss values for {deal.symbol}')
             raise Warning
 
         indicator_value = indicator_value['present_value']

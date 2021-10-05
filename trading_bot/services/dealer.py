@@ -35,7 +35,7 @@ class Dealer:
                 symbol=decision.symbol,
             )
         except Warning:
-            logger.error(f'I did not get current price for {decision.symbol} and did not open the deal')
+            logger.warning(f'I did not get current price for {decision.symbol} and did not open the deal')
             return
 
         stop_loss = self._count_stop_loss_value(decision.side, current_price)
@@ -47,7 +47,7 @@ class Dealer:
                 stop_loss=stop_loss,
             )
         except Warning:
-            logger.error(f'I did not open the deal for {decision}')
+            logger.warning(f'I did not open the deal for {decision}')
             return
 
         msg = f'I just opened the deal. ({decision})'
@@ -71,7 +71,7 @@ class Dealer:
         try:
             response = await self._deals_adapter.get_positions_by_symbol(symbol)
         except Warning:
-            logger.error(f'I did not get position info for {symbol}')
+            logger.warning(f'I did not get position info for {symbol}')
             raise Warning
 
         has_open_deals = False
@@ -85,7 +85,7 @@ class Dealer:
         try:
             response = await self._deals_adapter.get_positions_by_symbol(symbol)
         except Warning:
-            logger.error(f'I did not get position info for {symbol}')
+            logger.warning(f'I did not get position info for {symbol}')
             raise Warning
 
         deals = []
@@ -111,12 +111,12 @@ class Dealer:
         try:
             await self._deals_adapter.get_current_price(symbol=symbol)
         except Warning:
-            logger.error(f'I did not get current price for {symbol}')
+            logger.warning(f'I did not get current price for {symbol}')
             raise Warning
 
     async def set_stop_loss(self, deal, stop_loss):
         try:
             await self._deals_adapter.set_stop_loss(deal, stop_loss)
         except Warning:
-            logger.error(f'I did not update stop loss for {deal}')
+            logger.warning(f'I did not update stop loss for {deal}')
             raise Warning
