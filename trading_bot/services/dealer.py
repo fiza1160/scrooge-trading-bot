@@ -30,19 +30,27 @@ class Dealer:
         self._deals_adapter = deals_adapter
 
     async def open_deal(self, decision):
-        current_price = await self._deals_adapter.get_current_price(
-            symbol=decision.symbol,
-        )
+        try:
+            current_price = await self._deals_adapter.get_current_price(
+                symbol=decision.symbol,
+            )
+        except Warning:
+            logger.error(f'I did not get current price for {decision.symbol} and did not open the deal')
+            return
 
         stop_loss = self._count_stop_loss_value(decision.side, current_price)
 
-        await self._deals_adapter.create_order(
-            side=decision.side,
-            symbol=decision.symbol,
-            stop_loss=stop_loss,
-        )
+        try:
+            await self._deals_adapter.create_order(
+                side=decision.side,
+                symbol=decision.symbol,
+                stop_loss=stop_loss,
+            )
+        except Warning:
+            logger.error(f'I did not open the deal for {decision}')
+            return
 
-        msg = f'I just opened a deal (ByBit). ({decision})'
+        msg = f'I just opened the deal. ({decision})'
         logger.info(msg)
         await app.notifier.notify(msg=msg)
 
@@ -60,7 +68,11 @@ class Dealer:
         return round(sl_price, 2)
 
     async def symbol_has_open_deal(self, symbol):
-        response = await self._deals_adapter.get_positions_by_symbol(symbol)
+        try:
+            response = await self._deals_adapter.get_positions_by_symbol(symbol)
+        except Warning:
+            logger.error(f'I did not get position info for {symbol}')
+            raise Warning
 
         has_open_deals = False
         for res in response.get('result'):
@@ -70,7 +82,11 @@ class Dealer:
         return has_open_deals
 
     async def get_deals_by_symbol(self, symbol):
-        response = await self._deals_adapter.get_positions_by_symbol(symbol)
+        try:
+            response = await self._deals_adapter.get_positions_by_symbol(symbol)
+        except Warning:
+            logger.error(f'I did not get position info for {symbol}')
+            raise Warning
 
         deals = []
         for res in response.get('result'):
@@ -92,7 +108,15 @@ class Dealer:
         return deals
 
     async def get_current_price(self, symbol: Symbol):
-        await self._deals_adapter.get_current_price(symbol=symbol)
+        try:
+            await self._deals_adapter.get_current_price(symbol=symbol)
+        except Warning:
+            logger.error(f'I did not get current price for {symbol}')
+            raise Warning
 
     async def set_stop_loss(self, deal, stop_loss):
-        await self._deals_adapter.set_stop_loss(deal, stop_loss)
+        try:
+            await self._deals_adapter.set_stop_loss(deal, stop_loss)
+        except Warning:
+            logger.error(f'I did not update stop loss for {deal}')
+            raise Warning

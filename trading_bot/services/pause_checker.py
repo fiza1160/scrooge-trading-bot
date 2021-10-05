@@ -1,5 +1,9 @@
 import asyncio
+import logging
+
 from trading_bot import app
+
+logger = logging.getLogger('logger')
 
 
 class PauseChecker:
@@ -15,6 +19,9 @@ class PauseChecker:
         for symbol in app.symbol_manager.list():
             if symbol.pause:
                 if app.exchange_manager.get('ByBit') in symbol.exchanges:
-                    symbol.pause = await self._dealer.symbol_has_open_deal(symbol=symbol)
+                    try:
+                        symbol.pause = await self._dealer.symbol_has_open_deal(symbol=symbol)
+                    except Warning:
+                        logger.error(f'I did not update pause for {symbol}')
                 else:
                     symbol.pause = False

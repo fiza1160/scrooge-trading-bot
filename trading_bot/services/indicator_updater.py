@@ -70,17 +70,21 @@ class IndicatorUpdater:
 
         for symbol in symbols:
             if not symbol.pause:
-                new_values = await self._indicators_adapter.get_indicator_values(
-                    symbol=symbol,
-                    indicator=indicator
-                )
-                if new_values:
-                    app.indicator_value_manager.update(
+                try:
+                    new_values = await self._indicators_adapter.get_indicator_values(
                         symbol=symbol,
-                        indicator=indicator,
-                        present_value=new_values['present_value'],
-                        previous_value=new_values['previous_value']
+                        indicator=indicator
                     )
+                except Warning:
+                    logger.error(f'I did not get the new indicator values for {symbol}')
+                    continue
+
+                app.indicator_value_manager.update(
+                    symbol=symbol,
+                    indicator=indicator,
+                    present_value=new_values['present_value'],
+                    previous_value=new_values['previous_value']
+                )
 
     async def _call_decision_maker(self) -> None:
         await self._decision_maker.decide()

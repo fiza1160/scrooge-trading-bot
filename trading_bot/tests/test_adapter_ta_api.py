@@ -100,10 +100,11 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
 
             mock_get.return_value = Mock(status_code=400, text='test response text')
 
-            await AdapterTaAPI(api_key=test_api_key, timeout=0).get_indicator_values(
-                symbol=symbol,
-                indicator=indicator,
-            )
+            with self.assertRaises(Warning):
+                await AdapterTaAPI(api_key=test_api_key, timeout=0).get_indicator_values(
+                    symbol=symbol,
+                    indicator=indicator,
+                )
 
             mock_logger.error.assert_called_once()
 

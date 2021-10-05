@@ -318,3 +318,8 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
                 present_value=18,
                 previous_value=-6.76,
             )
+
+            with self.subTest(case='indicators_adapter.get_indicator_values raises Warning '
+                                   'method should handle the exception and call the logger.'):
+                # TODO add test
+                pass

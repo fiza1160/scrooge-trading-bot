@@ -39,8 +39,10 @@ class AdapterTaAPI:
         url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'
         response = requests.get(url, params=params)
         if response.status_code != 200:
-            logger.error(f'{symbol} {response.text}')
-            return
+            logger.error(f'{symbol} {response.text}\n'
+                         f'{indicator}')
+            raise Warning
+
         resp = self._parse_response(response=response.json())
         logger.info(f'{symbol} {indicator} {resp}')
 
