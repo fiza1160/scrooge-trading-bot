@@ -42,18 +42,20 @@ class StopLossManager:
 
             for deal in deals:
                 try:
-                    stop_loss = await self._get_new_stop_loss_value(deal=deal, current_price=current_price)
+                    new_stop_loss = await self._get_new_stop_loss_value(deal=deal, current_price=current_price)
                 except Warning:
                     logger.warning(f'I did not get new stop loss value for {deal}')
                     continue
 
-                try:
-                    await app.dealer.set_stop_loss(deal, stop_loss)
-                except Warning:
-                    logger.warning(f'I did not set new stop loss for {deal}')
-                    continue
+                if deal.stop_loss != new_stop_loss:
+                    try:
+                        await app.dealer.set_stop_loss(deal, new_stop_loss)
+                    except Warning:
+                        logger.warning(f'I did not set new stop loss for {deal}')
+                        continue
 
-                logger.info(f'I just updated stop loss for {deal.symbol}')
+                    logger.info(f'I just updated stop loss for {deal.symbol} '
+                                f'(new value: {new_stop_loss}, previous value: {deal.stop_loss}')
 
     @staticmethod
     def _get_symbols_with_open_deals() -> [Symbol]:
