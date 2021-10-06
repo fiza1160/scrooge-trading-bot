@@ -24,6 +24,12 @@ class Deal:
         self.stop_loss = stop_loss
         self.take_profit = take_profit
 
+    def __str__(self):
+        return f'{self.symbol} {self.side}'
+
+    def __repr__(self):
+        return f'{self.symbol} {self.side}'
+
 
 class Dealer:
     def __init__(self, deals_adapter):
