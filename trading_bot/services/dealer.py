@@ -109,7 +109,7 @@ class Dealer:
 
     async def get_current_price(self, symbol: Symbol):
         try:
-            await self._deals_adapter.get_current_price(symbol=symbol)
+            return await self._deals_adapter.get_current_price(symbol=symbol)
         except Warning:
             logger.warning(f'I did not get current price for {symbol}')
             raise Warning
