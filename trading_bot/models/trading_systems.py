@@ -41,6 +41,8 @@ class TradingSystemSettingsValidator:
 
         TradingSystemSettingsValidator.validate_conditions(settings, 'conditions_to_buy')
         TradingSystemSettingsValidator.validate_conditions(settings, 'conditions_to_sell')
+        TradingSystemSettingsValidator.validate_conditions(settings, 'uptrend_conditions')
+        TradingSystemSettingsValidator.validate_conditions(settings, 'downtrend_conditions')
 
     @staticmethod
     def validate_conditions(settings: {}, conditions_name: str) -> None:

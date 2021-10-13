@@ -56,9 +56,11 @@ class TestTradingSystemManager(TestCase):
     def _create_indicators():
         ind_manager = app.indicator_manager
         indicators = [
-            ind_manager.create(name='10_Momentum_1h', period=10, indicator_type='Momentum', interval='1h'),
-            ind_manager.create(name='4_MovingAverage_1h', period=4, indicator_type='MovingAverage', interval='1h'),
-            ind_manager.create(name='9_MovingAverage_1h', period=9, indicator_type='MovingAverage', interval='1h')
+            ind_manager.create(name='10_Momentum_1w', period=10, indicator_type='Momentum', interval='1w'),
+            ind_manager.create(name='4_MovingAverage_4h', period=4, indicator_type='MovingAverage', interval='4h'),
+            ind_manager.create(name='9_MovingAverage_4h', period=10, indicator_type='Momentum', interval='4h'),
+            ind_manager.create(name='4_MovingAverage_1w', period=4, indicator_type='MovingAverage', interval='1w'),
+            ind_manager.create(name='9_MovingAverage_1w', period=9, indicator_type='MovingAverage', interval='1w')
         ]
         return indicators
 
@@ -76,50 +78,23 @@ class TestTradingSystemManager(TestCase):
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1h.previous_value'),
-                operator='>',
-                second_operand=Condition.Operand(operand_type=type_number, comparison_value='0')
-            ),
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1h.present_value'),
+                                                comparison_value='4_MovingAverage_4h.present_value'),
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='10_Momentum_1h.previous_value')
-            ),
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='4_MovingAverage_1h.present_value'),
-                operator='>',
-                second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='9_MovingAverage_1h.present_value'),
+                                                 comparison_value='9_MovingAverage_4h.present_value'),
             )
         ]
 
     @staticmethod
     def _create_conditions_to_sell():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
-        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1h.previous_value'),
-                operator='<',
-                second_operand=Condition.Operand(operand_type=type_number, comparison_value='0')
-            ),
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1h.present_value'),
-                operator='<',
-                second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='10_Momentum_1h.previous_value')
-            ),
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='9_MovingAverage_1h.present_value'),
+                                                comparison_value='9_MovingAverage_4h.present_value'),
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='4_MovingAverage_1h.present_value'),
+                                                 comparison_value='4_MovingAverage_4h.present_value'),
             )
         ]
 
@@ -314,6 +289,50 @@ class TestTradingSystemSettingsValidator(TestCase):
         with self.subTest(case='If "conditions_to_buy" have bad format raise ValueError'):
             bad_settings = copy.deepcopy(correct_settings)
             bad_settings[0]['settings']['conditions_to_sell'] = {'bad_attr': 123}
+
+            with self.assertRaises(ValueError):
+                TradingSystemSettingsValidator.validate(
+                    name=bad_settings[0].get('name'),
+                    settings=bad_settings[0].get('settings'),
+                    exchange_manager=app.exchange_manager
+                )
+
+        with self.subTest(case='If "uptrend_conditions" are empty validator should raise ValueError'):
+            bad_settings = copy.deepcopy(correct_settings)
+            bad_settings[0]['settings']['uptrend_conditions'] = ''
+
+            with self.assertRaises(ValueError):
+                TradingSystemSettingsValidator.validate(
+                    name=bad_settings[0].get('name'),
+                    settings=bad_settings[0].get('settings'),
+                    exchange_manager=app.exchange_manager
+                )
+
+        with self.subTest(case='If "uptrend_conditions" have bad format raise ValueError'):
+            bad_settings = copy.deepcopy(correct_settings)
+            bad_settings[0]['settings']['uptrend_conditions'] = {'bad_attr': 123}
+
+            with self.assertRaises(ValueError):
+                TradingSystemSettingsValidator.validate(
+                    name=bad_settings[0].get('name'),
+                    settings=bad_settings[0].get('settings'),
+                    exchange_manager=app.exchange_manager
+                )
+
+        with self.subTest(case='If "downtrend_conditions" are empty validator should raise ValueError'):
+            bad_settings = copy.deepcopy(correct_settings)
+            bad_settings[0]['settings']['downtrend_conditions'] = ''
+
+            with self.assertRaises(ValueError):
+                TradingSystemSettingsValidator.validate(
+                    name=bad_settings[0].get('name'),
+                    settings=bad_settings[0].get('settings'),
+                    exchange_manager=app.exchange_manager
+                )
+
+        with self.subTest(case='If "downtrend_conditions" have bad format raise ValueError'):
+            bad_settings = copy.deepcopy(correct_settings)
+            bad_settings[0]['settings']['downtrend_conditions'] = {'bad_attr': 123}
 
             with self.assertRaises(ValueError):
                 TradingSystemSettingsValidator.validate(

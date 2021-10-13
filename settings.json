@@ -17,7 +17,9 @@
             "stormgain",
             "bybit"
          ],
-         "deal_opening_params": {"qty": 0.001}
+         "deal_opening_params":{
+            "qty":0.001
+         }
       },
       {
          "base_currency":"ETH",
@@ -26,7 +28,9 @@
             "stormgain",
             "bybit"
          ],
-         "deal_opening_params": {"qty": 0.01}
+         "deal_opening_params":{
+            "qty":0.01
+         }
       },
       {
          "base_currency":"LTC",
@@ -34,7 +38,9 @@
          "exchanges":[
             "stormgain"
          ],
-         "deal_opening_params": {"qty": 0.01}
+         "deal_opening_params":{
+            "qty":0.01
+         }
       },
       {
          "base_currency":"SNX",
@@ -42,7 +48,9 @@
          "exchanges":[
             "stormgain"
          ],
-         "deal_opening_params": {"qty": 0.01}
+         "deal_opening_params":{
+            "qty":0.01
+         }
       },
       {
          "base_currency":"XRP",
@@ -50,7 +58,9 @@
          "exchanges":[
             "stormgain"
          ],
-         "deal_opening_params": {"qty": 0.01}
+         "deal_opening_params":{
+            "qty":0.01
+         }
       },
       {
          "base_currency":"ATOM",
@@ -58,7 +68,9 @@
          "exchanges":[
             "stormgain"
          ],
-         "deal_opening_params": {"qty": 0.01}
+         "deal_opening_params":{
+            "qty":0.01
+         }
       },
       {
          "base_currency":"BNB",
@@ -66,7 +78,9 @@
          "exchanges":[
             "bybit"
          ],
-         "deal_opening_params": {"qty": 0.1}
+         "deal_opening_params":{
+            "qty":0.1
+         }
       },
       {
          "base_currency":"AAVE",
@@ -74,7 +88,9 @@
          "exchanges":[
             "bybit"
          ],
-         "deal_opening_params": {"qty": 0.08}
+         "deal_opening_params":{
+            "qty":0.08
+         }
       },
       {
          "base_currency":"BCH",
@@ -82,31 +98,45 @@
          "exchanges":[
             "bybit"
          ],
-         "deal_opening_params": {"qty": 0.05}
+         "deal_opening_params":{
+            "qty":0.05
+         }
       }
    ],
    "trading_system_settings":[
       {
-         "name":"Momentum+4MA+9MA",
+         "name":"Trends+4MA+9MA",
          "settings":{
             "indicators":[
                {
-                  "name":"10_Momentum_1h",
+                  "name":"10_Momentum_1w",
                   "period":10,
                   "indicator_type":"Momentum",
-                  "interval":"1h"
+                  "interval":"1w"
                },
                {
-                  "name":"4_MovingAverage_1h",
+                  "name":"4_MovingAverage_4h",
                   "period":4,
                   "indicator_type":"MovingAverage",
-                  "interval":"1h"
+                  "interval":"4h"
                },
                {
-                  "name":"9_MovingAverage_1h",
+                  "name":"9_MovingAverage_4h",
                   "period":9,
                   "indicator_type":"MovingAverage",
-                  "interval":"1h"
+                  "interval":"4h"
+               },
+               {
+                  "name":"4_MovingAverage_1w",
+                  "period":4,
+                  "indicator_type":"MovingAverage",
+                  "interval":"1w"
+               },
+               {
+                  "name":"9_MovingAverage_1w",
+                  "period":9,
+                  "indicator_type":"MovingAverage",
+                  "interval":"1w"
                }
             ],
             "exchanges":[
@@ -117,34 +147,12 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.previous_value"
-                  },
-                  "operator":">",
-                  "second_operand":{
-                     "operand_type":"NUMBER",
-                     "value":0
-                  }
-               },
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.present_value"
+                     "value":"4_MovingAverage_4h.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.previous_value"
-                  }
-               },
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_1h.present_value"
-                  },
-                  "operator":">",
-                  "second_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_1h.present_value"
+                     "value":"9_MovingAverage_4h.present_value"
                   }
                }
             ],
@@ -152,34 +160,60 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.previous_value"
-                  },
-                  "operator":"<",
-                  "second_operand":{
-                     "operand_type":"NUMBER",
-                     "value":0
-                  }
-               },
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.present_value"
-                  },
-                  "operator":"<",
-                  "second_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1h.previous_value"
-                  }
-               },
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_1h.present_value"
+                     "value":"9_MovingAverage_4h.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_1h.present_value"
+                     "value":"4_MovingAverage_4h.present_value"
+                  }
+               }
+            ],
+            "uptrend_conditions":[
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"10_Momentum_1w.present_value"
+                  },
+                  "operator":">",
+                  "second_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"10_Momentum_1w.previous_value"
+                  }
+               },
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"9_MovingAverage_1w.present_value"
+                  },
+                  "operator":"<",
+                  "second_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"4_MovingAverage_1w.present_value"
+                  }
+               }
+            ],
+            "downtrend_conditions":[
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"10_Momentum_1w.present_value"
+                  },
+                  "operator":"<",
+                  "second_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"10_Momentum_1w.previous_value"
+                  }
+               },
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"9_MovingAverage_1w.present_value"
+                  },
+                  "operator":">",
+                  "second_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"4_MovingAverage_1w.present_value"
                   }
                }
             ]

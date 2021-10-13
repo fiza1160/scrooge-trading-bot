@@ -108,7 +108,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                         previous_value=8.6598,
                     )
                 )
-            indicator_values[0].updated_at = datetime.now() - timedelta(hours=8)
+            indicator_values[0].updated_at = datetime.now() - timedelta(days=8)
 
             await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
@@ -159,24 +159,38 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1h'),
-                symbol=symbol,
-                present_value=5,
-                previous_value=2,
-            )
-
-            app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1h'),
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
                 symbol=symbol,
                 present_value=18,
-                previous_value=2,
+                previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1h'),
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=2,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
             )
 
             await DecisionMaker(
@@ -205,24 +219,38 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1h'),
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
                 symbol=symbol,
-                present_value=-5,
-                previous_value=-2,
+                present_value=5,
+                previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1h'),
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
                 symbol=symbol,
-                present_value=-18,
+                present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1h'),
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
                 symbol=symbol,
-                present_value=-2,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=2,
                 previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
             )
 
             await DecisionMaker(
@@ -345,14 +373,14 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
 
         with self.subTest(case='Method should return only actual indicators values'):
             actual_value = app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1h'),
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
                 symbol=btc,
                 previous_value=67,
                 present_value=-8.98,
             )
 
             not_actual_value = app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1h'),
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
                 symbol=btc,
                 previous_value=67,
                 present_value=-8.98,
