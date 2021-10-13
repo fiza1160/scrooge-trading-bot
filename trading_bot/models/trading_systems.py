@@ -131,12 +131,16 @@ class TradingSystem:
             exchanges: [Exchange],
             conditions_to_buy: [Condition],
             conditions_to_sell: [Condition],
+            uptrend_conditions: [Condition],
+            downtrend_conditions: [Condition],
     ) -> None:
         self.name = name
         self.indicators = indicators
         self.exchanges = exchanges
         self.conditions_to_buy = conditions_to_buy
         self.conditions_to_sell = conditions_to_sell
+        self.uptrend_conditions = uptrend_conditions
+        self.downtrend_conditions = downtrend_conditions
 
     def __str__(self):
         return f'{self.name}'
@@ -162,6 +166,8 @@ class TradingSystemManager:
 
         indicators = self._indicators(settings['indicators'])
         exchanges = self._exchanges(settings['exchanges'])
+        uptrend_conditions = self._create_conditions(settings['uptrend_conditions'])
+        downtrend_conditions = self._create_conditions(settings['downtrend_conditions'])
         conditions_to_buy = self._create_conditions(settings['conditions_to_buy'])
         conditions_to_sell = self._create_conditions(settings['conditions_to_sell'])
 
@@ -171,6 +177,8 @@ class TradingSystemManager:
             exchanges=exchanges,
             conditions_to_buy=conditions_to_buy,
             conditions_to_sell=conditions_to_sell,
+            uptrend_conditions=uptrend_conditions,
+            downtrend_conditions=downtrend_conditions,
         )
 
         self._trading_systems.append(trading_system)

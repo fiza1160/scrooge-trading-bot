@@ -36,6 +36,8 @@ class TestTradingSystemManager(TestCase):
             test_exchanges = self._create_exchanges()
             test_conditions_to_buy = self._create_conditions_to_buy()
             test_conditions_to_sell = self._create_conditions_to_sell()
+            test_uptrend_conditions = self._create_uptrend_conditions()
+            test_downtrend_conditions = self._create_downtrend_conditions()
 
             ts_manager = TradingSystemManager(
                 indicator_manager=app.indicator_manager,
@@ -51,6 +53,8 @@ class TestTradingSystemManager(TestCase):
 
             self._assert_conditions(test_conditions_to_buy, trading_system.conditions_to_buy)
             self._assert_conditions(test_conditions_to_sell, trading_system.conditions_to_sell)
+            self._assert_conditions(test_uptrend_conditions, trading_system.uptrend_conditions)
+            self._assert_conditions(test_downtrend_conditions, trading_system.downtrend_conditions)
 
     @staticmethod
     def _create_indicators():
@@ -74,7 +78,6 @@ class TestTradingSystemManager(TestCase):
     @staticmethod
     def _create_conditions_to_buy():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
-        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
@@ -82,7 +85,7 @@ class TestTradingSystemManager(TestCase):
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
                                                  comparison_value='9_MovingAverage_4h.present_value'),
-            )
+            ),
         ]
 
     @staticmethod
@@ -95,6 +98,46 @@ class TestTradingSystemManager(TestCase):
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
                                                  comparison_value='4_MovingAverage_4h.present_value'),
+            ),
+        ]
+
+    @staticmethod
+    def _create_uptrend_conditions():
+        type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        return [
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='10_Momentum_1w.present_value'),
+                operator='>',
+                second_operand=Condition.Operand(operand_type=type_indicator,
+                                                 comparison_value='10_Momentum_1w.previous_value'),
+            ),
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='9_MovingAverage_1w.present_value'),
+                operator='<',
+                second_operand=Condition.Operand(operand_type=type_indicator,
+                                                 comparison_value='4_MovingAverage_1w.present_value'),
+            ),
+        ]
+
+    @staticmethod
+    def _create_downtrend_conditions():
+        type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        return [
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='10_Momentum_1w.present_value'),
+                operator='<',
+                second_operand=Condition.Operand(operand_type=type_indicator,
+                                                 comparison_value='10_Momentum_1w.previous_value'),
+            ),
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='9_MovingAverage_1w.present_value'),
+                operator='>',
+                second_operand=Condition.Operand(operand_type=type_indicator,
+                                                 comparison_value='4_MovingAverage_1w.present_value'),
             )
         ]
 
