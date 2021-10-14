@@ -33,7 +33,7 @@ class AdapterByBit:
         resp = response.json()
         if resp['ret_msg'] != 'OK':
             logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
-                         f'{params}')
+                           f'{params}')
             raise Warning
 
         current_price = float(resp['result'][0]['last_price'])
@@ -44,7 +44,8 @@ class AdapterByBit:
             self,
             side: DealSide,
             symbol: Symbol,
-            stop_loss: float,
+            stop_loss: float = 0,
+            qty: float = 0,
     ):
 
         timestamp_ms = int(time.time() * 1000.0)
@@ -53,14 +54,15 @@ class AdapterByBit:
             'api_key': self._api_key,
             'close_on_trigger': False,
             'order_type': 'Market',
-            'qty': symbol.deal_opening_params.qty,
+            'qty': qty or symbol.deal_opening_params.qty,
             'reduce_only': False,
             'side': side.name.capitalize(),
-            'stop_loss': stop_loss,
             'symbol': self._get_symbol_alias(symbol),
             'time_in_force': 'GoodTillCancel',
             'timestamp': timestamp_ms,
         }
+        if stop_loss:
+            params['stop_loss'] = stop_loss
 
         params['sign'] = self._sing_request_params(params)
 
@@ -70,7 +72,7 @@ class AdapterByBit:
 
         if resp['ret_msg'] != 'OK':
             logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
-                         f'{params}')
+                           f'{params}')
             raise Warning
 
         return resp
@@ -106,7 +108,7 @@ class AdapterByBit:
         resp = response.json()
         if resp['ret_msg'] != 'OK':
             logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
-                         f'{params}')
+                           f'{params}')
             raise Warning
         return resp
 
@@ -129,7 +131,7 @@ class AdapterByBit:
 
         if resp['ret_msg'] != 'OK':
             logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
-                         f'{params}')
+                           f'{params}')
             raise Warning
 
         return resp

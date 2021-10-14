@@ -8,7 +8,6 @@ trading_system_manager = None
 notifier = None
 dealer = None
 deals_adapter = None
-decision_router = None
 decision_maker = None
 indicator_updater = None
 indicator_informer = None

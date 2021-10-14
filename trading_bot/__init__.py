@@ -10,7 +10,6 @@ from trading_bot.models.symbols import SymbolManager
 from trading_bot.models.trading_systems import TradingSystemManager
 from trading_bot.services.dealer import Dealer
 from trading_bot.services.decision_maker import DecisionMaker
-from trading_bot.services.decision_router import DecisionRouter
 from trading_bot.services.indicator_informer import IndicatorInformer
 from trading_bot.services.indicator_updater import IndicatorUpdater
 from trading_bot.services.stop_loss_manager import StopLossManager
@@ -77,12 +76,10 @@ def create_app(config_class=Config):
     )
     app.dealer = Dealer(deals_adapter=app.deals_adapter)
 
-    app.decision_router = DecisionRouter(app.notifier, app.dealer)
     app.decision_maker = DecisionMaker(
         app.trading_system_manager,
         app.symbol_manager,
         app.indicator_value_manager,
-        app.decision_router
     )
     app.indicators_adapter = AdapterTaAPI(
         api_key=config_class.TA_API_KEY,

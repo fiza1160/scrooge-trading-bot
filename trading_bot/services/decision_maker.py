@@ -1,10 +1,10 @@
 from enum import Enum, auto
 import logging
 
+from trading_bot import app
 from trading_bot.models.indicator_values import IndicatorValueManager, IndicatorValue
 from trading_bot.models.symbols import Symbol, SymbolManager
 from trading_bot.models.trading_systems import TradingSystem, TradingSystemManager, Condition
-from trading_bot.services.decision_router import DecisionRouter
 
 logger = logging.getLogger('logger')
 
@@ -37,41 +37,73 @@ class DecisionMaker:
             trading_system_manager: TradingSystemManager,
             symbol_manager: SymbolManager,
             indicator_value_manager: IndicatorValueManager,
-            decision_router: DecisionRouter,
     ) -> None:
         self._trading_system_manager = trading_system_manager
         self._symbol_manager = symbol_manager
         self._indicator_value_manager = indicator_value_manager
-        self._decision_router = decision_router
 
     async def decide(self) -> None:
         for symbol in self._symbol_manager.list():
             if not symbol.pause:
-                for trading_system in self._trading_system_manager.list():
-                    indicator_values = self._get_actual_indicator_values(symbol, trading_system)
+                await self._check_opening_conditions(symbol)
+            else:
+                await self._check_closing_conditions(symbol)
 
-                    if self._all_required_indicators_has_values(trading_system, indicator_values):
-                        buy = await self._check_buy_conditions(indicator_values, trading_system)
-                        sell = await self._check_sell_conditions(indicator_values, trading_system)
+    async def _check_opening_conditions(self, symbol):
+        for trading_system in self._trading_system_manager.list():
+            indicator_values = self._get_actual_indicator_values(symbol, trading_system)
 
-                        if buy or sell:
-                            symbol.pause = True
-                            side = DealSide.BUY if buy else DealSide.SELL
-                            await self._call_router(
-                                side=side,
-                                symbol=symbol,
-                                trading_system=trading_system,
-                            )
+            if self._all_required_indicators_has_values(trading_system, indicator_values):
+                buy = await self._check_buy_conditions(indicator_values, trading_system)
+                sell = await self._check_sell_conditions(indicator_values, trading_system)
 
-    async def _call_router(self, side, symbol, trading_system):
-        decision = self.Decision(
-                symbol=symbol,
-                side=side,
-                trading_system=trading_system,
-            )
-        logger.info(f'{decision}')
+                if buy or sell:
+                    symbol.pause = True
+                    side = DealSide.BUY if buy else DealSide.SELL
 
-        await self._decision_router.rout(decision=decision)
+                    decision = self.Decision(
+                        symbol=symbol,
+                        side=side,
+                        trading_system=trading_system,
+                    )
+
+                    logger.info(f'I decide to open deal for for {symbol} because '
+                                f'{trading_system.conditions_to_buy if buy else trading_system.conditions_to_sell}')
+
+                    await app.dealer.open_deal(decision=decision)
+
+    async def _check_closing_conditions(self, symbol):
+        for trading_system in self._trading_system_manager.list():
+            indicator_values = self._get_actual_indicator_values(symbol, trading_system)
+
+            if self._all_required_indicators_has_values(trading_system, indicator_values):
+                try:
+                    deals = await app.dealer.get_deals_by_symbol(symbol)
+                except Warning:
+                    logger.warning(f'I did not get deals info for {symbol} and did not check close deal conditions')
+                    continue
+
+                for deal in deals:
+                    if deal.side == DealSide.BUY:
+                        close_condition = trading_system.conditions_to_sell
+                        closing_deal_side = DealSide.SELL
+                    else:
+                        close_condition = trading_system.conditions_to_buy
+                        closing_deal_side = DealSide.BUY
+
+                    close = self._check_conditions(indicator_values, close_condition)
+
+                    if close:
+                        symbol.pause = False
+
+                        decision = self.Decision(
+                            symbol=symbol,
+                            side=closing_deal_side,
+                            trading_system=trading_system,
+                        )
+                        logger.info(f'I decide to close deal for for {symbol} because {close_condition}')
+
+                        await app.dealer.close_deal(decision=decision)
 
     def _get_actual_indicator_values(
             self,

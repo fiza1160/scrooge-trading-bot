@@ -1,10 +1,12 @@
+import asyncio
 from datetime import datetime, timedelta
 from random import random
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 from trading_bot import app
 from trading_bot.models.trading_systems import Condition
+from trading_bot.services.dealer import Deal
 from trading_bot.services.decision_maker import DecisionMaker, DealSide
 from trading_bot.tests.helpers import reset_managers
 from trading_bot.tests.test_trading_systems import TradingSystemSettingsLoader
@@ -15,25 +17,25 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         reset_managers()
 
-    @patch('trading_bot.services.decision_maker.DecisionMaker._call_router')
-    async def test__decide(self, mock__call_router):
-
+    @patch('trading_bot.services.decision_maker.DecisionMaker._check_opening_conditions', new_callable=AsyncMock)
+    @patch('trading_bot.services.decision_maker.DecisionMaker._check_closing_conditions', new_callable=AsyncMock)
+    async def test_decide(self, mock__check_closing_conditions, mock__check_opening_conditions):
         with self.subTest(case='When there are no symbols,'
                                'method should do nothing'):
-
             await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
             ).decide()
 
             self.assertEqual(app.symbol_manager.list(), [])
-            mock__call_router.assert_not_called()
+            mock__check_opening_conditions.assert_not_called()
+            mock__check_closing_conditions.assert_not_called()
 
-        with self.subTest(case='When all symbols are paused,'
-                               'method should do nothing'):
-            mock__call_router.reset_mock()
+        with self.subTest(case='For Symbol with pause == False'
+                               'method should call _check_opening_conditions'):
+            mock__check_opening_conditions.reset_mock()
+            mock__check_closing_conditions.reset_mock()
 
             symbol = app.symbol_manager.create(
                 base_currency='BTC',
@@ -44,35 +46,61 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 ],
                 deal_opening_params={'qty': 5}
             )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            ).decide()
+
+            mock__check_opening_conditions.assert_called_once()
+            mock__check_closing_conditions.assert_not_called()
+
+        with self.subTest(case='For Symbol with pause == True'
+                               'method should call _check_closing_conditions'):
+            mock__check_opening_conditions.reset_mock()
+            mock__check_closing_conditions.reset_mock()
+
             symbol.pause = True
 
             await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
             ).decide()
 
-            mock__call_router.assert_not_called()
+            mock__check_opening_conditions.assert_not_called()
+            mock__check_closing_conditions.assert_called_once()
+
+    @patch('trading_bot.services.decision_maker.app.dealer', new_callable=AsyncMock)
+    async def test__check_opening_conditions(self, mock__dealer):
+        symbol = app.symbol_manager.create(
+            base_currency='BTC',
+            quote_currency='USDT',
+            exchanges=[
+                app.exchange_manager.create('ByBit', 'open_deal'),
+                app.exchange_manager.create('StormGain', 'send_message')
+            ],
+            deal_opening_params={'qty': 5}
+        )
 
         with self.subTest(case='When there are no trading systems,'
                                'method should do nothing'):
 
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             await DecisionMaker(
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertEqual(app.trading_system_manager.list(), [])
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When there are no indicator values for all required indicators,'
                                'method should do nothing'):
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             settings = TradingSystemSettingsLoader.correct_settings()
             app.trading_system_manager.create(
@@ -84,15 +112,14 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertEqual(app.indicator_value_manager.list(), [])
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When not all values of the required indicators are actual,'
                                'method should do nothing'):
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             symbol = app.symbol_manager.list()[0]
             symbol.pause = False
@@ -114,15 +141,14 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertFalse(indicator_values[0].is_actual())
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When indicator values do not satisfy buy or sell deal opening conditions,'
                                'method should do nothing'):
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             app.indicator_value_manager._indicator_values = []
             app.indicator_value_manager._indicator_values_by_key = {}
@@ -143,15 +169,14 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of buy,'
                                'but indicator values do not satisfy uptrend conditions'
                                'method should do nothing'):
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             app.indicator_value_manager._indicator_values = []
             app.indicator_value_manager._indicator_values_by_key = {}
@@ -198,16 +223,15 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertFalse(symbol.pause)
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of sell,'
                                'but indicator values do not satisfy downtrend conditions'
                                'method should do nothing'):
-            mock__call_router.reset_mock()
+            mock__dealer.reset_mock()
 
             app.indicator_value_manager._indicator_values_by_key = {}
             app.indicator_value_manager._indicator_values = []
@@ -255,16 +279,15 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertFalse(symbol.pause)
-            mock__call_router.assert_not_called()
+            mock__dealer.open_deal.assert_not_called()
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of buy,'
                                'and the values of the indicators satisfy the uptrend conditions,'
-                               'method should create Decision(side=Buy) and call decision_router'):
-            mock__call_router.reset_mock()
+                               'method should create Decision(side=Buy) and call dealer.open_deal'):
+            mock__dealer.reset_mock()
 
             app.indicator_value_manager._indicator_values = []
             app.indicator_value_manager._indicator_values_by_key = {}
@@ -311,20 +334,19 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
             self.assertTrue(symbol.pause)
-            mock__call_router.assert_called_with(
-                side=DealSide.BUY,
-                symbol=symbol,
-                trading_system=app.trading_system_manager.list()[0],
-            )
+            mock__dealer.open_deal.assert_called_once()
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].side, DealSide.BUY)
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].symbol, symbol)
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].trading_system,
+                             app.trading_system_manager.list()[0])
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of sell,'
                                'and the values of the indicators satisfy the down conditions,'
-                               'method should create Decision(side=Sell) and call decision_router'):
-            mock__call_router.reset_mock()
+                               'method should create Decision(side=Sell) and call dealer.open_deal'):
+            mock__dealer.reset_mock()
 
             app.indicator_value_manager._indicator_values_by_key = {}
             app.indicator_value_manager._indicator_values = []
@@ -372,17 +394,369 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 trading_system_manager=app.trading_system_manager,
                 symbol_manager=app.symbol_manager,
                 indicator_value_manager=app.indicator_value_manager,
-                decision_router=app.decision_router,
-            ).decide()
+            )._check_opening_conditions(symbol)
 
-            self.assertTrue(symbol.pause)
-            mock__call_router.assert_called_with(
-                side=DealSide.SELL,
-                symbol=symbol,
-                trading_system=app.trading_system_manager.list()[0],
+            mock__dealer.open_deal.assert_called_once()
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].side, DealSide.SELL)
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].symbol, symbol)
+            self.assertEqual(mock__dealer.open_deal.call_args.kwargs['decision'].trading_system,
+                             app.trading_system_manager.list()[0])
+
+    @patch('trading_bot.services.decision_maker.app.dealer', new_callable=AsyncMock)
+    async def test__check_closing_conditions(self, mock__dealer):
+        symbol = app.symbol_manager.create(
+            base_currency='BTC',
+            quote_currency='USDT',
+            exchanges=[
+                app.exchange_manager.create('ByBit', 'open_deal'),
+                app.exchange_manager.create('StormGain', 'send_message')
+            ],
+            deal_opening_params={'qty': 5}
+        )
+
+        with self.subTest(case='When there are no trading systems,'
+                               'method should do nothing'):
+
+            mock__dealer.reset_mock()
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            self.assertEqual(app.trading_system_manager.list(), [])
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When there are no indicator values for all required indicators,'
+                               'method should do nothing'):
+            mock__dealer.reset_mock()
+
+            settings = TradingSystemSettingsLoader.correct_settings()
+            app.trading_system_manager.create(
+                name=settings[0]['name'],
+                settings=settings[0]['settings']
             )
 
-    def test__check_deal_opening_conditions(self):
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            self.assertEqual(app.indicator_value_manager.list(), [])
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When not all values of the required indicators are actual,'
+                               'method should do nothing'):
+            mock__dealer.reset_mock()
+
+            symbol = app.symbol_manager.list()[0]
+            symbol.pause = False
+
+            tr_system = app.trading_system_manager.list()[0]
+            indicator_values = []
+            for indicator in tr_system.indicators:
+                indicator_values.append(
+                    app.indicator_value_manager.create(
+                        indicator=indicator,
+                        symbol=symbol,
+                        present_value=-67,
+                        previous_value=8.6598,
+                    )
+                )
+            indicator_values[0].updated_at = datetime.now() - timedelta(days=8)
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            self.assertFalse(indicator_values[0].is_actual())
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When there are no deals info,'
+                               'method should do nothing'):
+            mock__dealer.reset_mock()
+            mock__dealer.get_deal_by_symbol.return_value = []
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            tr_system = app.trading_system_manager.list()[0]
+            indicator_values = []
+            for indicator in tr_system.indicators:
+                indicator_values.append(
+                    app.indicator_value_manager.create(
+                        indicator=indicator,
+                        symbol=symbol,
+                        present_value=0,
+                        previous_value=0,
+                    )
+                )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When DealSide is Sell and indicator values do not satisfy closing conditions,'
+                               'method should do nothing'):
+            mock__dealer.reset_mock()
+
+            mock__dealer.get_deal_by_symbol.return_value = [
+                Deal(
+                    symbol=symbol,
+                    side=DealSide.SELL,
+                    size=0.05,
+                    entry_price=555,
+                    stop_loss=666,
+                    take_profit=444,
+                )
+            ]
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=6,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=10,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=7,
+                previous_value=7,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When DealSide is Buy and indicator values do not satisfy closing conditions,'
+                               'method should do nothing'):
+            mock__dealer.reset_mock()
+
+            mock__dealer.get_deal_by_symbol.return_value = [
+                Deal(
+                    symbol=symbol,
+                    side=DealSide.SELL,
+                    size=0.05,
+                    entry_price=555,
+                    stop_loss=666,
+                    take_profit=444,
+                )
+            ]
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=16,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=10,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=7,
+                previous_value=7,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            mock__dealer.close_deal.assert_not_called()
+
+        with self.subTest(case='When DealSide is Sell and the values of the indicators satisfy the close conditions '
+                               'method should create Decision(side=Buy) and call dealer.close_deal'):
+            mock__dealer.reset_mock()
+            mock__dealer.get_deals_by_symbol.return_value = [
+                Deal(
+                    symbol=symbol,
+                    side=DealSide.SELL,
+                    size=0.05,
+                    entry_price=555,
+                    stop_loss=666,
+                    take_profit=444,
+                )
+            ]
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=16,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=10,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=7,
+                previous_value=7,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            self.assertFalse(symbol.pause)
+            mock__dealer.close_deal.assert_called_once()
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].side, DealSide.BUY)
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].symbol, symbol)
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].trading_system,
+                             app.trading_system_manager.list()[0])
+
+        with self.subTest(case='When DealSide is Buy and the values of the indicators satisfy the close conditions '
+                               'method should create Decision(side=Sell) and call dealer.close_deal'):
+            mock__dealer.reset_mock()
+            mock__dealer.get_deals_by_symbol.return_value = [
+                Deal(
+                    symbol=symbol,
+                    side=DealSide.BUY,
+                    size=0.05,
+                    entry_price=555,
+                    stop_loss=666,
+                    take_profit=444,
+                )
+            ]
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=16,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=20,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=1,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=7,
+                previous_value=7,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+            )._check_closing_conditions(symbol)
+
+            self.assertFalse(symbol.pause)
+            mock__dealer.close_deal.assert_called_once()
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].side, DealSide.SELL)
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].symbol, symbol)
+            self.assertEqual(mock__dealer.close_deal.call_args.kwargs['decision'].trading_system,
+                             app.trading_system_manager.list()[0])
+
+    def test__check_conditions(self):
 
         condition_ind_value = Condition(
             first_operand=Condition.Operand(

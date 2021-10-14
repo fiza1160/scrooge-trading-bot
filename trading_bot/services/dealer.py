@@ -1,6 +1,7 @@
 import logging
 
 from trading_bot import app
+from trading_bot.models.exchanges import DealOpeningMethod
 from trading_bot.models.symbols import Symbol
 from trading_bot.services.decision_maker import DealSide
 
@@ -36,29 +37,33 @@ class Dealer:
         self._deals_adapter = deals_adapter
 
     async def open_deal(self, decision):
-        try:
-            current_price = await self._deals_adapter.get_current_price(
-                symbol=decision.symbol,
-            )
-        except Warning:
-            logger.warning(f'I did not get current price for {decision.symbol} and did not open the deal')
-            return
+        for exchange in decision.symbol.exchanges:
+            if exchange.deal_opening_method == DealOpeningMethod.SEND_MESSAGE:
+                await app.notifier.notify(msg=str(decision))
+            else:
+                try:
+                    current_price = await self._deals_adapter.get_current_price(
+                        symbol=decision.symbol,
+                    )
+                except Warning:
+                    logger.warning(f'I did not get current price for {decision.symbol} and did not open the deal')
+                    return
 
-        stop_loss = self._count_stop_loss_value(decision.side, current_price)
+                stop_loss = self._count_stop_loss_value(decision.side, current_price)
 
-        try:
-            await self._deals_adapter.create_order(
-                side=decision.side,
-                symbol=decision.symbol,
-                stop_loss=stop_loss,
-            )
-        except Warning:
-            logger.warning(f'I did not open the deal for {decision}')
-            return
+                try:
+                    await self._deals_adapter.create_order(
+                        side=decision.side,
+                        symbol=decision.symbol,
+                        stop_loss=stop_loss,
+                    )
+                except Warning:
+                    logger.warning(f'I did not open the deal for {decision}')
+                    return
 
-        msg = f'I just opened the deal. ({decision})'
-        logger.info(msg)
-        await app.notifier.notify(msg=msg)
+                msg = f'I just opened the deal. ({decision})'
+                logger.info(msg)
+                await app.notifier.notify(msg=msg)
 
     @staticmethod
     def _count_stop_loss_value(
@@ -126,3 +131,30 @@ class Dealer:
         except Warning:
             logger.warning(f'I did not update stop loss for {deal}')
             raise Warning
+
+    async def close_deal(self, decision):
+        for exchange in decision.symbol.exchanges:
+            if exchange.deal_opening_method == DealOpeningMethod.SEND_MESSAGE:
+                await app.notifier.notify(msg=f'It is time to close deal ({decision})')
+            else:
+                qty = 0
+                for deal in await self.get_deals_by_symbol(decision.symbol):
+                    qty = deal.size if deal.side == decision.side else 0
+
+                if qty:
+                    try:
+                        await self._deals_adapter.create_order(
+                            side=decision.side,
+                            symbol=decision.symbol,
+                            qty=qty,
+                        )
+                    except Warning:
+                        logger.warning(f'I did not close the deal for {decision}')
+                        return
+
+                    msg = f'I just closed the deal. ({decision})'
+                    logger.info(msg)
+                    await app.notifier.notify(msg=msg)
+
+                if qty == 0:
+                    logger.warning(f'I try to close the Deal, but qty == 0 ({decision})')
