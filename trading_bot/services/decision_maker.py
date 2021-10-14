@@ -51,8 +51,8 @@ class DecisionMaker:
                     indicator_values = self._get_actual_indicator_values(symbol, trading_system)
 
                     if self._all_required_indicators_has_values(trading_system, indicator_values):
-                        buy = self._check_deal_opening_conditions(indicator_values, trading_system.conditions_to_buy)
-                        sell = self._check_deal_opening_conditions(indicator_values, trading_system.conditions_to_sell)
+                        buy = await self._check_buy_conditions(indicator_values, trading_system)
+                        sell = await self._check_sell_conditions(indicator_values, trading_system)
 
                         if buy or sell:
                             symbol.pause = True
@@ -92,8 +92,16 @@ class DecisionMaker:
     ) -> bool:
         return len(trading_system.indicators) == len(indicator_values)
 
+    async def _check_sell_conditions(self, indicator_values, trading_system):
+        return (self._check_conditions(indicator_values, trading_system.conditions_to_sell)
+                and self._check_conditions(indicator_values, trading_system.downtrend_conditions))
+
+    async def _check_buy_conditions(self, indicator_values, trading_system):
+        return (self._check_conditions(indicator_values, trading_system.conditions_to_buy)
+                and self._check_conditions(indicator_values, trading_system.uptrend_conditions))
+
     @staticmethod
-    def _check_deal_opening_conditions(indicator_values: [IndicatorValue], conditions: [Condition]) -> bool:
+    def _check_conditions(indicator_values: [IndicatorValue], conditions: [Condition]) -> bool:
         is_satisfied = True
         for condition in conditions:
             if is_satisfied:

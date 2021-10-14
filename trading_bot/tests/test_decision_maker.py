@@ -149,6 +149,120 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             mock__call_router.assert_not_called()
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of buy,'
+                               'but indicator values do not satisfy uptrend conditions'
+                               'method should do nothing'):
+            mock__call_router.reset_mock()
+
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            symbol = app.symbol_manager.list()[0]
+            symbol.pause = False
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=18,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=10,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=0,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=2,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+                decision_router=app.decision_router,
+            ).decide()
+
+            self.assertFalse(symbol.pause)
+            mock__call_router.assert_not_called()
+
+        with self.subTest(case='When the values of the indicators satisfy the conditions of sell,'
+                               'but indicator values do not satisfy downtrend conditions'
+                               'method should do nothing'):
+            mock__call_router.reset_mock()
+
+            app.indicator_value_manager._indicator_values_by_key = {}
+            app.indicator_value_manager._indicator_values = []
+            app.indicator_value_manager._indicator_values_by_key = {}
+
+            symbol = app.symbol_manager.list()[0]
+            symbol.pause = False
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=5,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                symbol=symbol,
+                present_value=10,
+                previous_value=2,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                symbol=symbol,
+                present_value=4,
+                previous_value=1,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=7,
+                previous_value=7,
+            )
+
+            app.indicator_value_manager.create(
+                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                symbol=symbol,
+                present_value=3,
+                previous_value=3,
+            )
+
+            await DecisionMaker(
+                trading_system_manager=app.trading_system_manager,
+                symbol_manager=app.symbol_manager,
+                indicator_value_manager=app.indicator_value_manager,
+                decision_router=app.decision_router,
+            ).decide()
+
+            self.assertFalse(symbol.pause)
+            mock__call_router.assert_not_called()
+
+        with self.subTest(case='When the values of the indicators satisfy the conditions of buy,'
+                               'and the values of the indicators satisfy the uptrend conditions,'
                                'method should create Decision(side=Buy) and call decision_router'):
             mock__call_router.reset_mock()
 
@@ -175,15 +289,15 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager.create(
                 indicator=app.indicator_manager.get('10_Momentum_1w'),
                 symbol=symbol,
-                present_value=1,
+                present_value=5,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
                 indicator=app.indicator_manager.get('4_MovingAverage_1w'),
                 symbol=symbol,
-                present_value=2,
-                previous_value=2,
+                present_value=7,
+                previous_value=7,
             )
 
             app.indicator_value_manager.create(
@@ -208,6 +322,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             )
 
         with self.subTest(case='When the values of the indicators satisfy the conditions of sell,'
+                               'and the values of the indicators satisfy the down conditions,'
                                'method should create Decision(side=Sell) and call decision_router'):
             mock__call_router.reset_mock()
 
@@ -235,7 +350,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager.create(
                 indicator=app.indicator_manager.get('10_Momentum_1w'),
                 symbol=symbol,
-                present_value=1,
+                present_value=-6,
                 previous_value=1,
             )
 
@@ -335,7 +450,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                 )
             ]
 
-            self.assertTrue(app.decision_maker._check_deal_opening_conditions(
+            self.assertTrue(app.decision_maker._check_conditions(
                 indicator_values=values,
                 conditions=conditions
             ))
@@ -344,7 +459,7 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
                                'method should return False.'):
             app.indicator_value_manager.get(indicator=ma, symbol=btc).present_value = 8.545
 
-            self.assertFalse(app.decision_maker._check_deal_opening_conditions(
+            self.assertFalse(app.decision_maker._check_conditions(
                 indicator_values=values,
                 conditions=conditions
             ))
