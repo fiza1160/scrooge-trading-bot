@@ -67,7 +67,7 @@ class AdapterByBit:
         params['sign'] = self._sing_request_params(params)
 
         url = f'{self._url}private/linear/order/create'
-        response = requests.post(url, params=params)
+        response = requests.post(url, params=sorted(params))
         resp = response.json()
 
         if resp['ret_msg'] != 'OK':
