@@ -57,17 +57,16 @@ class AdapterByBit:
             'qty': qty or symbol.deal_opening_params.qty,
             'reduce_only': False,
             'side': side.name.capitalize(),
+            'stop_loss': stop_loss,
             'symbol': self._get_symbol_alias(symbol),
             'time_in_force': 'GoodTillCancel',
             'timestamp': timestamp_ms,
         }
-        if stop_loss:
-            params['stop_loss'] = stop_loss
 
         params['sign'] = self._sing_request_params(params)
 
         url = f'{self._url}private/linear/order/create'
-        response = requests.post(url, params=sorted(params))
+        response = requests.post(url, params=params)
         resp = response.json()
 
         if resp['ret_msg'] != 'OK':
