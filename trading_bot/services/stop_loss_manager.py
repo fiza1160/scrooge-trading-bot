@@ -15,9 +15,9 @@ class StopLossManager:
             self,
     ) -> None:
         self._stop_loss_indicator = app.indicator_manager.create(
-            name='ParabolicSAR_4h',
+            name='ParabolicSAR_1h',
             indicator_type='ParabolicSAR',
-            interval='4h',
+            interval='1h',
         )
 
     async def run(self) -> None:

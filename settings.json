@@ -109,34 +109,34 @@
          "settings":{
             "indicators":[
                {
-                  "name":"10_Momentum_1w",
+                  "name":"10_Momentum_1d",
                   "period":10,
                   "indicator_type":"Momentum",
-                  "interval":"1w"
+                  "interval":"1d"
                },
                {
-                  "name":"4_MovingAverage_4h",
+                  "name":"4_MovingAverage_1h",
                   "period":4,
                   "indicator_type":"MovingAverage",
-                  "interval":"4h"
+                  "interval":"1h"
                },
                {
-                  "name":"9_MovingAverage_4h",
+                  "name":"9_MovingAverage_1h",
                   "period":9,
                   "indicator_type":"MovingAverage",
-                  "interval":"4h"
+                  "interval":"1h"
                },
                {
-                  "name":"4_MovingAverage_1w",
+                  "name":"4_MovingAverage_1d",
                   "period":4,
                   "indicator_type":"MovingAverage",
-                  "interval":"1w"
+                  "interval":"1d"
                },
                {
-                  "name":"9_MovingAverage_1w",
+                  "name":"9_MovingAverage_1d",
                   "period":9,
                   "indicator_type":"MovingAverage",
-                  "interval":"1w"
+                  "interval":"1d"
                }
             ],
             "exchanges":[
@@ -147,12 +147,12 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_4h.present_value"
+                     "value":"4_MovingAverage_1h.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_4h.present_value"
+                     "value":"9_MovingAverage_1h.present_value"
                   }
                }
             ],
@@ -160,12 +160,12 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_4h.present_value"
+                     "value":"9_MovingAverage_1h.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_4h.present_value"
+                     "value":"4_MovingAverage_1h.present_value"
                   }
                }
             ],
@@ -173,23 +173,23 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.present_value"
+                     "value":"10_Momentum_1d.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.previous_value"
+                     "value":"10_Momentum_1d.previous_value"
                   }
                },
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_1w.present_value"
+                     "value":"9_MovingAverage_1d.present_value"
                   },
                   "operator":"<",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_1w.present_value"
+                     "value":"4_MovingAverage_1d.present_value"
                   }
                }
             ],
@@ -197,23 +197,23 @@
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.present_value"
+                     "value":"10_Momentum_1d.present_value"
                   },
                   "operator":"<",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.previous_value"
+                     "value":"10_Momentum_1d.previous_value"
                   }
                },
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"9_MovingAverage_1w.present_value"
+                     "value":"9_MovingAverage_1d.present_value"
                   },
                   "operator":">",
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"4_MovingAverage_1w.present_value"
+                     "value":"4_MovingAverage_1d.present_value"
                   }
                }
             ]
