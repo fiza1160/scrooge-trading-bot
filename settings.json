@@ -14,7 +14,6 @@
          "base_currency":"BTC",
          "quote_currency":"USDT",
          "exchanges":[
-            "stormgain",
             "bybit"
          ],
          "deal_opening_params":{
@@ -25,48 +24,7 @@
          "base_currency":"ETH",
          "quote_currency":"USDT",
          "exchanges":[
-            "stormgain",
             "bybit"
-         ],
-         "deal_opening_params":{
-            "qty":0.01
-         }
-      },
-      {
-         "base_currency":"LTC",
-         "quote_currency":"USDT",
-         "exchanges":[
-            "stormgain"
-         ],
-         "deal_opening_params":{
-            "qty":0.01
-         }
-      },
-      {
-         "base_currency":"SNX",
-         "quote_currency":"USDT",
-         "exchanges":[
-            "stormgain"
-         ],
-         "deal_opening_params":{
-            "qty":0.01
-         }
-      },
-      {
-         "base_currency":"XRP",
-         "quote_currency":"USDT",
-         "exchanges":[
-            "stormgain"
-         ],
-         "deal_opening_params":{
-            "qty":0.01
-         }
-      },
-      {
-         "base_currency":"ATOM",
-         "quote_currency":"USDT",
-         "exchanges":[
-            "stormgain"
          ],
          "deal_opening_params":{
             "qty":0.01
