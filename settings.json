@@ -105,8 +105,8 @@
                   },
                   "operator":">",
                   "second_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.previous_value"
+                     "operand_type":"NUMBER",
+                     "value":"0"
                   }
                },
                {
@@ -129,8 +129,8 @@
                   },
                   "operator":"<",
                   "second_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"10_Momentum_1w.previous_value"
+                     "operand_type":"NUMBER",
+                     "value":"0"
                   }
                },
                {
