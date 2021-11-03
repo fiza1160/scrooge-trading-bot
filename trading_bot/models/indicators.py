@@ -22,12 +22,12 @@ class Indicator:
             name: str,
             indicator_type: str,
             interval: Interval,
-            period: int = None,
+            optional: {} = None,
     ):
         self.name = name
         self.indicator_type = indicator_type
         self.interval = interval
-        self.period = period
+        self.optional = optional or {}
 
     def __str__(self):
         return self.name
@@ -47,13 +47,13 @@ class IndicatorManager:
             name: str,
             indicator_type: str,
             interval: str,
-            period: int = None,
+            optional: {} = None,
     ) -> Indicator:
         indicator = Indicator(
             name=name,
             indicator_type=indicator_type,
             interval=Indicator.Interval(name=interval),
-            period=period,
+            optional=optional,
         )
 
         self._indicators.append(indicator)

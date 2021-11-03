@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timedelta
 from random import random
 from unittest import IsolatedAsyncioTestCase
@@ -185,35 +184,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=18,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=0,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=2,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -241,35 +240,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=5,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=4,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -296,35 +295,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=18,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=5,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -356,35 +355,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             symbol.pause = False
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=5,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=-6,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=2,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -523,35 +522,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager._indicator_values_by_key = {}
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=6,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=1,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -584,35 +583,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager._indicator_values_by_key = {}
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=16,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=1,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -644,35 +643,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager._indicator_values_by_key = {}
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=16,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=10,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=1,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -709,35 +708,35 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
             app.indicator_value_manager._indicator_values_by_key = {}
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=symbol,
                 present_value=16,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period9'),
                 symbol=symbol,
                 present_value=20,
                 previous_value=2,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=symbol,
                 present_value=1,
                 previous_value=1,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period4'),
                 symbol=symbol,
                 present_value=7,
                 previous_value=7,
             )
 
             app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('9_MovingAverage_1w'),
+                indicator=app.indicator_manager.get('MovingAverage_1w_period9'),
                 symbol=symbol,
                 present_value=3,
                 previous_value=3,
@@ -761,19 +760,19 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
         condition_ind_value = Condition(
             first_operand=Condition.Operand(
                 operand_type=Condition.Operand.OperandType.INDICATOR_VALUE,
-                comparison_value='10_Momentum_1h.present_value'
+                comparison_value='Momentum_1h.present_value'
             ),
             operator='>',
             second_operand=Condition.Operand(
                 operand_type=Condition.Operand.OperandType.INDICATOR_VALUE,
-                comparison_value='10_Momentum_1h.previous_value'
+                comparison_value='Momentum_1h.previous_value'
             ),
         )
 
         condition_number = Condition(
             first_operand=Condition.Operand(
                 operand_type=Condition.Operand.OperandType.INDICATOR_VALUE,
-                comparison_value='4_MovingAverage_5m.present_value'
+                comparison_value='MovingAverage_5m_period4.present_value'
             ),
             operator='=',
             second_operand=Condition.Operand(
@@ -794,17 +793,16 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
         )
 
         mom = app.indicator_manager.create(
-            name='10_Momentum_1h',
+            name='Momentum_1h',
             indicator_type='Momentum',
             interval='1h',
-            period=10,
         )
 
         ma = app.indicator_manager.create(
-            name='4_MovingAverage_5m',
+            name='MovingAverage_5m_period4',
             indicator_type='MovingAverage',
             interval='5m',
-            period=4,
+            optional={'optInTimePeriod': 4},
         )
 
         with self.subTest(case='When the indicator values satisfy all condition, '
@@ -862,14 +860,14 @@ class TestDecisionMaker(IsolatedAsyncioTestCase):
 
         with self.subTest(case='Method should return only actual indicators values'):
             actual_value = app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('10_Momentum_1w'),
+                indicator=app.indicator_manager.get('Momentum_1w'),
                 symbol=btc,
                 previous_value=67,
                 present_value=-8.98,
             )
 
             not_actual_value = app.indicator_value_manager.create(
-                indicator=app.indicator_manager.get('4_MovingAverage_4h'),
+                indicator=app.indicator_manager.get('MovingAverage_4h_period4'),
                 symbol=btc,
                 previous_value=67,
                 present_value=-8.98,

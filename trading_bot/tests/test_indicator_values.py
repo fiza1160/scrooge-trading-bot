@@ -53,12 +53,12 @@ class TestIndicatorValueManager(TestCase):
         return symbol
 
     @staticmethod
-    def _create_indicator(name='1h_Momentum_10'):
+    def _create_indicator(name='Momentum_1h'):
+        params = name.split(sep='_')
         return app.indicator_manager.create(
             name=name,
-            indicator_type='Momentum',
-            interval='1h',
-            period=10,
+            indicator_type=params[0],
+            interval=params[1],
         )
 
     def test_get(self):
@@ -76,8 +76,8 @@ class TestIndicatorValueManager(TestCase):
             iv_manager = IndicatorValueManager()
 
             indicators = [
-                self._create_indicator(name=f'1h_Momentum_10'),
-                self._create_indicator(name=f'1h_MovingAverage_4')
+                self._create_indicator(name=f'Momentum_1h'),
+                self._create_indicator(name=f'MovingAverage_1h_period4')
             ]
 
             symbols = [
@@ -107,8 +107,8 @@ class TestIndicatorValueManager(TestCase):
 
             iv_manager = IndicatorValueManager()
 
-            mom = self._create_indicator(name=f'1h_Momentum_10')
-            ma = self._create_indicator(name=f'1h_MovingAverage_4')
+            mom = self._create_indicator(name=f'Momentum_1h')
+            ma = self._create_indicator(name=f'MovingAverage_1h_period4')
 
             bch = self._create_symbol(base_currency='BCH')
             eth = self._create_symbol(base_currency='ETH')
@@ -135,8 +135,8 @@ class TestIndicatorValueManager(TestCase):
             iv_manager = IndicatorValueManager()
 
             indicators = [
-                self._create_indicator(name=f'1h_Momentum_10'),
-                self._create_indicator(name=f'1h_MovingAverage_4')
+                self._create_indicator(name=f'Momentum_1h'),
+                self._create_indicator(name=f'MovingAverage_1h_period4')
             ]
 
             symbols = [
@@ -176,8 +176,8 @@ class TestIndicatorValueManager(TestCase):
                                'IndicatorValueManager should create new IndicatorValue object'):
             iv_manager = IndicatorValueManager()
 
-            mom = self._create_indicator(name=f'1h_Momentum_10')
-            ma = self._create_indicator(name=f'1h_MovingAverage_4')
+            mom = self._create_indicator(name=f'Momentum_1h')
+            ma = self._create_indicator(name=f'MovingAverage_1h_period4')
 
             bch = self._create_symbol(base_currency='BCH')
             eth = self._create_symbol(base_currency='ETH')
@@ -234,8 +234,8 @@ class TestIndicatorValueManager(TestCase):
             iv_manager = IndicatorValueManager()
 
             indicators = [
-                self._create_indicator(name=f'1h_Momentum_10'),
-                self._create_indicator(name=f'1h_MovingAverage_4')
+                self._create_indicator(name=f'Momentum_1h'),
+                self._create_indicator(name=f'MovingAverage_1h_period4')
             ]
 
             symbols = [
@@ -277,10 +277,9 @@ class TestIndicatorValue(TestCase):
         )
 
         mom = app.indicator_manager.create(
-            name='1h_Momentum_10',
+            name='Momentum_1h',
             indicator_type='Momentum',
             interval='1h',
-            period=10,
         )
 
         indicator_value = app.indicator_value_manager.create(

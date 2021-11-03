@@ -19,6 +19,8 @@ class AdapterTaAPI:
             'Momentum': 'mom',
             'MovingAverage': 'ma',
             'ParabolicSAR': 'sar',
+            'MACD': 'macd',
+            'DMI': 'dmi',
         }
 
     async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
@@ -33,14 +35,14 @@ class AdapterTaAPI:
             'backtracks': 2,
         }
 
-        if indicator.period:
-            params['optInTimePeriod'] = indicator.period
+        for param in indicator.optional:
+            params[param] = indicator.optional[param]
 
         url = f'{self._url}{self._endpoints.get(indicator.indicator_type)}'
         response = requests.get(url, params=params)
         if response.status_code != 200:
             logger.warning(f'{symbol} {response.text}\n'
-                         f'{indicator}')
+                           f'{indicator}')
             raise Warning
 
         resp = self._parse_response(response=response.json())

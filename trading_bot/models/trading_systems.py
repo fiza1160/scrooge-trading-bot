@@ -18,7 +18,6 @@ class TradingSystemSettingsValidator:
 
         for indicator in indicators:
             if ('name' not in indicator or
-                    'period' not in indicator or
                     'indicator_type' not in indicator or
                     'interval' not in indicator):
                 raise ValueError
@@ -195,7 +194,7 @@ class TradingSystemManager:
                     name=setting['name'],
                     indicator_type=setting['indicator_type'],
                     interval=setting['interval'],
-                    period=setting['period'],
+                    optional=setting.get('optional')
                 )
 
             indicators.append(indicator)

@@ -60,11 +60,31 @@ class TestTradingSystemManager(TestCase):
     def _create_indicators():
         ind_manager = app.indicator_manager
         indicators = [
-            ind_manager.create(name='10_Momentum_1w', period=10, indicator_type='Momentum', interval='1w'),
-            ind_manager.create(name='4_MovingAverage_4h', period=4, indicator_type='MovingAverage', interval='4h'),
-            ind_manager.create(name='9_MovingAverage_4h', period=10, indicator_type='Momentum', interval='4h'),
-            ind_manager.create(name='4_MovingAverage_1w', period=4, indicator_type='MovingAverage', interval='1w'),
-            ind_manager.create(name='9_MovingAverage_1w', period=9, indicator_type='MovingAverage', interval='1w')
+            ind_manager.create(name='Momentum_1w', indicator_type='Momentum', interval='1w'),
+            ind_manager.create(
+                name='MovingAverage_4h_period4',
+                indicator_type='MovingAverage',
+                interval='4h',
+                optional={'optInTimePeriod': 4}
+            ),
+            ind_manager.create(
+                name='MovingAverage_4h_period9',
+                indicator_type='Momentum',
+                interval='4h',
+                optional={'optInTimePeriod': 9}
+            ),
+            ind_manager.create(
+                name='MovingAverage_1w_period4',
+                indicator_type='MovingAverage',
+                interval='1w',
+                optional={'optInTimePeriod': 4}
+            ),
+            ind_manager.create(
+                name='MovingAverage_1w_period9',
+                indicator_type='MovingAverage',
+                interval='1w',
+                optional={'optInTimePeriod': 9}
+            )
         ]
         return indicators
 
@@ -81,10 +101,10 @@ class TestTradingSystemManager(TestCase):
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='4_MovingAverage_4h.present_value'),
+                                                comparison_value='MovingAverage_4h_period4.present_value'),
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='9_MovingAverage_4h.present_value'),
+                                                 comparison_value='MovingAverage_4h_period9.present_value'),
             ),
         ]
 
@@ -94,50 +114,52 @@ class TestTradingSystemManager(TestCase):
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='9_MovingAverage_4h.present_value'),
+                                                comparison_value='MovingAverage_4h_period9.present_value'),
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='4_MovingAverage_4h.present_value'),
+                                                 comparison_value='MovingAverage_4h_period4.present_value'),
             ),
         ]
 
     @staticmethod
     def _create_uptrend_conditions():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1w.present_value'),
+                                                comparison_value='Momentum_1w.present_value'),
                 operator='>',
-                second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='10_Momentum_1w.previous_value'),
+                second_operand=Condition.Operand(operand_type=type_number,
+                                                 comparison_value='0'),
             ),
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='9_MovingAverage_1w.present_value'),
+                                                comparison_value='MovingAverage_1w_period9.present_value'),
                 operator='<',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='4_MovingAverage_1w.present_value'),
+                                                 comparison_value='MovingAverage_1w_period4.present_value'),
             ),
         ]
 
     @staticmethod
     def _create_downtrend_conditions():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='10_Momentum_1w.present_value'),
+                                                comparison_value='Momentum_1w.present_value'),
                 operator='<',
-                second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='10_Momentum_1w.previous_value'),
+                second_operand=Condition.Operand(operand_type=type_number,
+                                                 comparison_value='0'),
             ),
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='9_MovingAverage_1w.present_value'),
+                                                comparison_value='MovingAverage_1w_period9.present_value'),
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='4_MovingAverage_1w.present_value'),
+                                                 comparison_value='MovingAverage_1w_period4.present_value'),
             )
         ]
 
@@ -399,17 +421,16 @@ class TestOperand(TestCase):
         )
 
         mom = app.indicator_manager.create(
-            name='1h_Momentum_10',
+            name='Momentum_1h',
             indicator_type='Momentum',
             interval='1h',
-            period=10,
         )
 
         ma = app.indicator_manager.create(
-            name='1h_MovingAverage_4',
+            name='MovingAverage_1h_period4',
             indicator_type='MovingAverage',
             interval='1h',
-            period=4,
+            optional={'optInTimePeriod': 4},
         )
 
         indicator_values = [
@@ -420,7 +441,7 @@ class TestOperand(TestCase):
         with self.subTest(case='When operand_type is INDICATOR_VALUE, method should return right indicator value'):
             operand = Condition.Operand(
                 operand_type=Condition.Operand.OperandType.INDICATOR_VALUE,
-                comparison_value='1h_Momentum_10.present_value'
+                comparison_value='Momentum_1h.present_value'
             )
 
             self.assertEqual(operand.get_operand_value(indicator_values=indicator_values), 7)

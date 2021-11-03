@@ -17,30 +17,30 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
     @patch('trading_bot.services.indicator_updater.datetime')
     async def test__update(self, mock_datetime, mock_update_indicator_values):
         mom = app.indicator_manager.create(
-            name='1d_Momentum_10',
+            name='Momentum_1d',
             indicator_type='Momentum',
             interval='1d',
-            period=10,
         )
 
         ma4 = app.indicator_manager.create(
-            name='1h_MA_4',
+            name='MovingAverage_1h_period4',
             indicator_type='MovingAverage',
             interval='1h',
-            period=4,
+            optional={'optInTimePeriod': 4}
         )
 
         ma9 = app.indicator_manager.create(
-            name='5m_MA_9',
+            name='MovingAverage_5m_period9',
             indicator_type='MovingAverage',
             interval='5m',
-            period=9,
+            optional={'optInTimePeriod': 9},
         )
 
-        with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9] '
+        with self.subTest(case='Test updater for indicators '
+                               '[Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9] '
                                'when when self._last_updates is empty (IndicatorsValues initialization)'
                                'IndicatorUpdater should call _update_indicator_values '
-                               'for [1d_Momentum_10, 1h_MA_4, 5m_MA_9]'
+                               'for [Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9]'
                                'IndicatorUpdater should fill self._last_updates '
                                'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             ind_updater = IndicatorUpdater(
@@ -59,11 +59,12 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
-        with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
+        with self.subTest(case='Test updater for indicators '
+                               '[Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9], '
                                'when self._last_updates is filled '
                                'and it is time to update all indicators. '
                                'IndicatorUpdater should call _update_indicator_values '
-                               'for [1d_Momentum_10, 1h_MA_4, 5m_MA_9]'
+                               'for [Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9]'
                                'IndicatorUpdater should update self._last_updates '
                                'IndicatorUpdater should update app.indicator_update_timeout (150)'):
             mock_update_indicator_values.reset_mock()
@@ -95,11 +96,12 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
-        with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
+        with self.subTest(case='Test updater for indicators '
+                               '[Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9], '
                                'when self._last_updates is filled '
-                               'and it is time to update only [1h_MA_4, 5m_MA_9]'
+                               'and it is time to update only [MovingAverage_1h_period4, MovingAverage_5m_period9]'
                                'IndicatorUpdater should call _update_indicator_values '
-                               'only for [1h_MA_4, 5m_MA_9]'):
+                               'only for [1MovingAverage_1h_period4, MovingAverage_5m_period9]'):
             mock_update_indicator_values.reset_mock()
 
             time_now = datetime.now()
@@ -130,7 +132,8 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
             self.assertEqual(app.indicator_update_timeout, 150)
             self.assertTrue(ind_updater._values_updated)
 
-        with self.subTest(case='Test updater for indicators [1d_Momentum_10, 1h_MA_4, 5m_MA_9], '
+        with self.subTest(case='Test updater for indicators '
+                               '[Momentum_1d, MovingAverage_1h_period4, MovingAverage_5m_period9], '
                                'and it is not time to update the indicators yet. '
                                'IndicatorUpdater should not call _update_indicator_values '
                                'IndicatorUpdater should not update self._last_updates '
@@ -173,10 +176,9 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
     def test__its_time_to_update(self):
         ind_manager = IndicatorManager()
         indicator = ind_manager.create(
-            name='5m_Momentum_10',
+            name='Momentum_5m',
             indicator_type='Momentum',
             interval='5m',
-            period=10,
         )
 
         with self.subTest(case='When self._last_updates is empty '
@@ -189,10 +191,10 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
         with self.subTest(case='When self._last_updates does not contain last indicator updates time '
                                '_its_time_to_update should return True'):
             indicator_2 = ind_manager.create(
-                name='5m_MovingAverage_4',
+                name='MovingAverage_5m_period4',
                 indicator_type='MovingAverage',
                 interval='5m',
-                period=4,
+                optional={'optInTimePeriod': 4},
             )
 
             ind_updater = IndicatorUpdater(
@@ -246,10 +248,9 @@ class TestIndicatorUpdater(IsolatedAsyncioTestCase):
     async def test__update_indicator_values(self, mock_indicator_value_manager):
         ind_manager = IndicatorManager()
         indicator = ind_manager.create(
-            name='5m_Momentum_10',
+            name='Momentum_5m',
             indicator_type='Momentum',
             interval='5m',
-            period=10,
         )
 
         mock_taapi_adapter = AsyncMock()

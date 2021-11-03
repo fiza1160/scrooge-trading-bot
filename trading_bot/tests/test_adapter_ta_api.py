@@ -43,23 +43,24 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
         )
 
         indicator = app.indicator_manager.create(
-            name='1h_Momentum_10',
+            name='Momentum_1h',
             indicator_type='Momentum',
             interval='1h',
-            period=10,
+            optional={'optInTimePeriod': 12}
         )
 
         test_api_key = 'test api key'
         url = 'https://api.taapi.io/mom'
 
-        with self.subTest(case='Check request params and returned indicator values'):
+        with self.subTest(case='Check returned indicator values'
+                               'and request params for indicator with optional params'):
             params = {
                 'secret': test_api_key,
                 'exchange': 'binance',
                 'symbol': f'{symbol.base_currency}/{symbol.quote_currency}',
                 'interval': indicator.interval.name,
                 'backtracks': 2,
-                'optInTimePeriod': 10,
+                'optInTimePeriod': 12,
             }
 
             indicator_values = await AdapterTaAPI(api_key=test_api_key, timeout=0).get_indicator_values(
@@ -72,7 +73,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
             self.assertEqual(indicator_values['present_value'], 2020.9800000000032)
             self.assertEqual(indicator_values['previous_value'], 2016.9000000000015)
 
-        with self.subTest(case='Check request params for indicator without period'):
+        with self.subTest(case='Check request params for indicator without optional params'):
             params = {
                 'secret': test_api_key,
                 'exchange': 'binance',
@@ -82,9 +83,9 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
             }
 
             indicator = app.indicator_manager.create(
-                name='1h_Momentum_10',
+                name='Momentum_1h',
                 indicator_type='Momentum',
-                interval='1h',
+                interval='1h'
             )
 
             await AdapterTaAPI(api_key=test_api_key, timeout=0).get_indicator_values(
