@@ -36,8 +36,6 @@ class TestTradingSystemManager(TestCase):
             test_exchanges = self._create_exchanges()
             test_conditions_to_buy = self._create_conditions_to_buy()
             test_conditions_to_sell = self._create_conditions_to_sell()
-            test_uptrend_conditions = self._create_uptrend_conditions()
-            test_downtrend_conditions = self._create_downtrend_conditions()
 
             ts_manager = TradingSystemManager(
                 indicator_manager=app.indicator_manager,
@@ -53,8 +51,6 @@ class TestTradingSystemManager(TestCase):
 
             self._assert_conditions(test_conditions_to_buy, trading_system.conditions_to_buy)
             self._assert_conditions(test_conditions_to_sell, trading_system.conditions_to_sell)
-            self._assert_conditions(test_uptrend_conditions, trading_system.uptrend_conditions)
-            self._assert_conditions(test_downtrend_conditions, trading_system.downtrend_conditions)
 
     @staticmethod
     def _create_indicators():
@@ -98,6 +94,7 @@ class TestTradingSystemManager(TestCase):
     @staticmethod
     def _create_conditions_to_buy():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
@@ -105,12 +102,30 @@ class TestTradingSystemManager(TestCase):
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
                                                  comparison_value='MovingAverage_4h_period9.present_value'),
+                is_close_condition=True,
+            ),
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='Momentum_1w.present_value'),
+                operator='>',
+                second_operand=Condition.Operand(operand_type=type_number,
+                                                 comparison_value='0'),
+                is_close_condition=False,
+            ),
+            Condition(
+                first_operand=Condition.Operand(operand_type=type_indicator,
+                                                comparison_value='MovingAverage_1w_period9.present_value'),
+                operator='<',
+                second_operand=Condition.Operand(operand_type=type_indicator,
+                                                 comparison_value='MovingAverage_1w_period4.present_value'),
+                is_close_condition=False,
             ),
         ]
 
     @staticmethod
     def _create_conditions_to_sell():
         type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
+        type_number = Condition.Operand.OperandType.NUMBER
         return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
@@ -118,41 +133,15 @@ class TestTradingSystemManager(TestCase):
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
                                                  comparison_value='MovingAverage_4h_period4.present_value'),
+                is_close_condition=True,
             ),
-        ]
-
-    @staticmethod
-    def _create_uptrend_conditions():
-        type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
-        type_number = Condition.Operand.OperandType.NUMBER
-        return [
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='Momentum_1w.present_value'),
-                operator='>',
-                second_operand=Condition.Operand(operand_type=type_number,
-                                                 comparison_value='0'),
-            ),
-            Condition(
-                first_operand=Condition.Operand(operand_type=type_indicator,
-                                                comparison_value='MovingAverage_1w_period9.present_value'),
-                operator='<',
-                second_operand=Condition.Operand(operand_type=type_indicator,
-                                                 comparison_value='MovingAverage_1w_period4.present_value'),
-            ),
-        ]
-
-    @staticmethod
-    def _create_downtrend_conditions():
-        type_indicator = Condition.Operand.OperandType.INDICATOR_VALUE
-        type_number = Condition.Operand.OperandType.NUMBER
-        return [
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
                                                 comparison_value='Momentum_1w.present_value'),
                 operator='<',
                 second_operand=Condition.Operand(operand_type=type_number,
                                                  comparison_value='0'),
+                is_close_condition=False,
             ),
             Condition(
                 first_operand=Condition.Operand(operand_type=type_indicator,
@@ -160,6 +149,7 @@ class TestTradingSystemManager(TestCase):
                 operator='>',
                 second_operand=Condition.Operand(operand_type=type_indicator,
                                                  comparison_value='MovingAverage_1w_period4.present_value'),
+                is_close_condition=False,
             )
         ]
 
@@ -362,50 +352,6 @@ class TestTradingSystemSettingsValidator(TestCase):
                     exchange_manager=app.exchange_manager
                 )
 
-        with self.subTest(case='If "uptrend_conditions" are empty validator should raise ValueError'):
-            bad_settings = copy.deepcopy(correct_settings)
-            bad_settings[0]['settings']['uptrend_conditions'] = ''
-
-            with self.assertRaises(ValueError):
-                TradingSystemSettingsValidator.validate(
-                    name=bad_settings[0].get('name'),
-                    settings=bad_settings[0].get('settings'),
-                    exchange_manager=app.exchange_manager
-                )
-
-        with self.subTest(case='If "uptrend_conditions" have bad format raise ValueError'):
-            bad_settings = copy.deepcopy(correct_settings)
-            bad_settings[0]['settings']['uptrend_conditions'] = {'bad_attr': 123}
-
-            with self.assertRaises(ValueError):
-                TradingSystemSettingsValidator.validate(
-                    name=bad_settings[0].get('name'),
-                    settings=bad_settings[0].get('settings'),
-                    exchange_manager=app.exchange_manager
-                )
-
-        with self.subTest(case='If "downtrend_conditions" are empty validator should raise ValueError'):
-            bad_settings = copy.deepcopy(correct_settings)
-            bad_settings[0]['settings']['downtrend_conditions'] = ''
-
-            with self.assertRaises(ValueError):
-                TradingSystemSettingsValidator.validate(
-                    name=bad_settings[0].get('name'),
-                    settings=bad_settings[0].get('settings'),
-                    exchange_manager=app.exchange_manager
-                )
-
-        with self.subTest(case='If "downtrend_conditions" have bad format raise ValueError'):
-            bad_settings = copy.deepcopy(correct_settings)
-            bad_settings[0]['settings']['downtrend_conditions'] = {'bad_attr': 123}
-
-            with self.assertRaises(ValueError):
-                TradingSystemSettingsValidator.validate(
-                    name=bad_settings[0].get('name'),
-                    settings=bad_settings[0].get('settings'),
-                    exchange_manager=app.exchange_manager
-                )
-
 
 class TestOperand(TestCase):
     def setUp(self) -> None:
@@ -472,10 +418,10 @@ class TestCondition(TestCase):
             first_operand=first_operand,
             operator='>',
             second_operand=second_operand,
+            is_close_condition=False,
         )
 
     def test_is_satisfied(self):
-
         with self.subTest(case='Test method, when operator is ">"'):
             self.condition.operator = '>'
 

@@ -81,7 +81,32 @@
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
                      "value":"MovingAverage_4h_period9.present_value"
-                  }
+                  },
+                  "is_close_condition": true
+               },
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"Momentum_1w.present_value"
+                  },
+                  "operator":">",
+                  "second_operand":{
+                     "operand_type":"NUMBER",
+                     "value":"0"
+                  },
+                  "is_close_condition": false
+               },
+               {
+                  "first_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"MovingAverage_1w_period9.present_value"
+                  },
+                  "operator":"<",
+                  "second_operand":{
+                     "operand_type":"INDICATOR_VALUE",
+                     "value":"MovingAverage_1w_period4.present_value"
+                  },
+                  "is_close_condition": false
                }
             ],
             "conditions_to_sell":[
@@ -94,44 +119,20 @@
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
                      "value":"MovingAverage_4h_period4.present_value"
-                  }
-               }
-            ],
-            "uptrend_conditions":[
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"Momentum_1w.present_value"
                   },
-                  "operator":">",
-                  "second_operand":{
-                     "operand_type":"NUMBER",
-                     "value":"0"
-                  }
+                  "is_close_condition": true
                },
                {
                   "first_operand":{
                      "operand_type":"INDICATOR_VALUE",
-                     "value":"MovingAverage_1w_period9.present_value"
-                  },
-                  "operator":"<",
-                  "second_operand":{
-                     "operand_type":"INDICATOR_VALUE",
-                     "value":"MovingAverage_1w_period4.present_value"
-                  }
-               }
-            ],
-            "downtrend_conditions":[
-               {
-                  "first_operand":{
-                     "operand_type":"INDICATOR_VALUE",
                      "value":"Momentum_1w.present_value"
                   },
                   "operator":"<",
                   "second_operand":{
                      "operand_type":"NUMBER",
                      "value":"0"
-                  }
+                  },
+                  "is_close_condition": false
                },
                {
                   "first_operand":{
@@ -142,7 +143,8 @@
                   "second_operand":{
                      "operand_type":"INDICATOR_VALUE",
                      "value":"MovingAverage_1w_period4.present_value"
-                  }
+                  },
+                  "is_close_condition": false
                }
             ]
          }

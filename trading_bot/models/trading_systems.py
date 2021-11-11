@@ -40,8 +40,6 @@ class TradingSystemSettingsValidator:
 
         TradingSystemSettingsValidator.validate_conditions(settings, 'conditions_to_buy')
         TradingSystemSettingsValidator.validate_conditions(settings, 'conditions_to_sell')
-        TradingSystemSettingsValidator.validate_conditions(settings, 'uptrend_conditions')
-        TradingSystemSettingsValidator.validate_conditions(settings, 'downtrend_conditions')
 
     @staticmethod
     def validate_conditions(settings: {}, conditions_name: str) -> None:
@@ -52,7 +50,8 @@ class TradingSystemSettingsValidator:
         for condition in conditions:
             if ('first_operand' not in condition or
                     'operator' not in condition or
-                    'second_operand' not in condition):
+                    'second_operand' not in condition or
+                    'is_close_condition' not in condition):
                 raise ValueError
 
             if (condition['first_operand']['operand_type'] is None
@@ -89,10 +88,17 @@ class Condition:
                     if indicator_value.indicator.name == indicator_name:
                         return getattr(indicator_value, value_name)
 
-    def __init__(self, first_operand: Operand, operator: str, second_operand: Operand) -> None:
+    def __init__(
+            self,
+            first_operand: Operand,
+            operator: str,
+            second_operand: Operand,
+            is_close_condition: bool,
+    ) -> None:
         self.first_operand = first_operand
         self.operator = operator
         self.second_operand = second_operand
+        self.is_close_condition = is_close_condition
         self._operator_methods = {
             '>': self._more_than,
             '<': self._less_than,
@@ -130,16 +136,12 @@ class TradingSystem:
             exchanges: [Exchange],
             conditions_to_buy: [Condition],
             conditions_to_sell: [Condition],
-            uptrend_conditions: [Condition],
-            downtrend_conditions: [Condition],
     ) -> None:
         self.name = name
         self.indicators = indicators
         self.exchanges = exchanges
         self.conditions_to_buy = conditions_to_buy
         self.conditions_to_sell = conditions_to_sell
-        self.uptrend_conditions = uptrend_conditions
-        self.downtrend_conditions = downtrend_conditions
 
     def __str__(self):
         return f'{self.name}'
@@ -165,8 +167,6 @@ class TradingSystemManager:
 
         indicators = self._indicators(settings['indicators'])
         exchanges = self._exchanges(settings['exchanges'])
-        uptrend_conditions = self._create_conditions(settings['uptrend_conditions'])
-        downtrend_conditions = self._create_conditions(settings['downtrend_conditions'])
         conditions_to_buy = self._create_conditions(settings['conditions_to_buy'])
         conditions_to_sell = self._create_conditions(settings['conditions_to_sell'])
 
@@ -176,8 +176,6 @@ class TradingSystemManager:
             exchanges=exchanges,
             conditions_to_buy=conditions_to_buy,
             conditions_to_sell=conditions_to_sell,
-            uptrend_conditions=uptrend_conditions,
-            downtrend_conditions=downtrend_conditions,
         )
 
         self._trading_systems.append(trading_system)
@@ -225,7 +223,8 @@ class TradingSystemManager:
                 Condition(
                     first_operand=first_operand,
                     operator=setting['operator'],
-                    second_operand=second_operand
+                    second_operand=second_operand,
+                    is_close_condition=setting['is_close_condition']
                 )
             )
 

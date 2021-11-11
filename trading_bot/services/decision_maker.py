@@ -85,10 +85,14 @@ class DecisionMaker:
 
                 for deal in deals:
                     if deal.side == DealSide.BUY:
-                        close_condition = trading_system.conditions_to_sell
+                        close_condition = list(filter(
+                            lambda condition: condition.is_close_condition, trading_system.conditions_to_sell
+                        ))
                         closing_deal_side = DealSide.SELL
                     else:
-                        close_condition = trading_system.conditions_to_buy
+                        close_condition = list(filter(
+                            lambda condition: condition.is_close_condition, trading_system.conditions_to_buy
+                        ))
                         closing_deal_side = DealSide.BUY
 
                     close = self._check_conditions(indicator_values, close_condition)
@@ -125,12 +129,10 @@ class DecisionMaker:
         return len(trading_system.indicators) == len(indicator_values)
 
     async def _check_sell_conditions(self, indicator_values, trading_system):
-        return (self._check_conditions(indicator_values, trading_system.conditions_to_sell)
-                and self._check_conditions(indicator_values, trading_system.downtrend_conditions))
+        return self._check_conditions(indicator_values, trading_system.conditions_to_sell)
 
     async def _check_buy_conditions(self, indicator_values, trading_system):
-        return (self._check_conditions(indicator_values, trading_system.conditions_to_buy)
-                and self._check_conditions(indicator_values, trading_system.uptrend_conditions))
+        return self._check_conditions(indicator_values, trading_system.conditions_to_buy)
 
     @staticmethod
     def _check_conditions(indicator_values: [IndicatorValue], conditions: [Condition]) -> bool:
