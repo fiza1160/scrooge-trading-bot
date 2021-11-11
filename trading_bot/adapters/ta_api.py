@@ -19,8 +19,7 @@ class AdapterTaAPI:
             'Momentum': 'mom',
             'MovingAverage': 'ma',
             'ParabolicSAR': 'sar',
-            'MACD': 'macd',
-            'DMI': 'dmi',
+            'ADX': 'adx',
         }
 
     async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
