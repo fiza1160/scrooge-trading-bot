@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime, timedelta
 import logging
 
-from trading_bot import app
+from trading_bot import app, IndicatorInformer, DecisionMaker
 from trading_bot.models.indicators import Indicator
 
 logger = logging.getLogger('logger')
@@ -12,8 +12,8 @@ class IndicatorUpdater:
 
     def __init__(
             self,
-            indicator_informer,
-            decision_maker,
+            indicator_informer: IndicatorInformer,
+            decision_maker: DecisionMaker,
     ) -> None:
         self._last_updates = {}
         self._values_updated = False

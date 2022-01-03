@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Dict, Any, List
 
 from trading_bot.models.exchanges import Exchange, ExchangeManager
 from trading_bot.models.indicator_values import IndicatorValue
@@ -8,7 +9,7 @@ from trading_bot.models.indicators import Indicator, IndicatorManager
 class TradingSystemSettingsValidator:
 
     @staticmethod
-    def validate(name: str, settings: {}, exchange_manager: ExchangeManager) -> None:
+    def validate(name: str, settings: Dict[str, Any], exchange_manager: ExchangeManager) -> None:
         if not name or not settings:
             raise ValueError
 
@@ -42,7 +43,7 @@ class TradingSystemSettingsValidator:
         TradingSystemSettingsValidator.validate_conditions(settings, 'conditions_to_sell')
 
     @staticmethod
-    def validate_conditions(settings: {}, conditions_name: str) -> None:
+    def validate_conditions(settings: Dict[str, Any], conditions_name: str) -> None:
         conditions = settings.get(conditions_name)
         if not conditions:
             raise ValueError
@@ -79,7 +80,7 @@ class Condition:
         def __repr__(self) -> str:
             return f'{self.comparison_value} {self.operand_type}'
 
-        def get_operand_value(self, indicator_values: [IndicatorValue]) -> float:
+        def get_operand_value(self, indicator_values: List[IndicatorValue]) -> float:
             if self.operand_type is self.OperandType.NUMBER:
                 return self.comparison_value
             else:
@@ -132,10 +133,10 @@ class TradingSystem:
     def __init__(
             self,
             name: str,
-            indicators: [Indicator],
-            exchanges: [Exchange],
-            conditions_to_buy: [Condition],
-            conditions_to_sell: [Condition],
+            indicators: List[Indicator],
+            exchanges: List[Exchange],
+            conditions_to_buy: List[Condition],
+            conditions_to_sell: List[Condition],
     ) -> None:
         self.name = name
         self.indicators = indicators
@@ -143,10 +144,10 @@ class TradingSystem:
         self.conditions_to_buy = conditions_to_buy
         self.conditions_to_sell = conditions_to_sell
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.name}'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.name}'
 
 
@@ -162,7 +163,7 @@ class TradingSystemManager:
         self._indicator_manager = indicator_manager
         self._exchange_manager = exchange_manager
 
-    def create(self, name: str, settings: {}) -> TradingSystem:
+    def create(self, name: str, settings: Dict[str, Any]) -> TradingSystem:
         self.validator.validate(name, settings, self._exchange_manager)
 
         indicators = self._indicators(settings['indicators'])
@@ -182,7 +183,7 @@ class TradingSystemManager:
 
         return trading_system
 
-    def _indicators(self, indicators_settings: []) -> [Indicator]:
+    def _indicators(self, indicators_settings: List[Dict[str, Any]]) -> List[Indicator]:
         indicators = []
 
         for setting in indicators_settings:
@@ -199,7 +200,7 @@ class TradingSystemManager:
 
         return indicators
 
-    def _exchanges(self, exchanges_settings: []) -> [Exchange]:
+    def _exchanges(self, exchanges_settings: List[str]) -> List[Exchange]:
         exchanges = []
 
         for exchange_name in exchanges_settings:
@@ -208,7 +209,7 @@ class TradingSystemManager:
         return exchanges
 
     @staticmethod
-    def _create_conditions(conditions_settings: []) -> [Condition]:
+    def _create_conditions(conditions_settings: List[Dict[str, Any]]) -> List[Condition]:
         conditions = []
         for setting in conditions_settings:
             first_operand = Condition.Operand(
@@ -230,5 +231,5 @@ class TradingSystemManager:
 
         return conditions
 
-    def list(self) -> [TradingSystem]:
+    def list(self) -> List[TradingSystem]:
         return self._trading_systems.copy()

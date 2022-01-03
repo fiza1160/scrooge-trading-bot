@@ -1,5 +1,7 @@
 import asyncio
 import logging
+from typing import Dict, List
+
 import requests
 
 from trading_bot.models.indicators import Indicator
@@ -22,7 +24,10 @@ class AdapterTaAPI:
             'ADX': 'adx',
         }
 
-    async def get_indicator_values(self, symbol: Symbol, indicator: Indicator) -> {}:
+    async def get_indicator_values(
+            self, symbol: Symbol,
+            indicator: Indicator
+    ) -> Dict[str, float]:
 
         await asyncio.sleep(self._timeout)
 
@@ -58,7 +63,7 @@ class AdapterTaAPI:
         )
 
     @staticmethod
-    def _parse_response(response: {}) -> {}:
+    def _parse_response(response: List[Dict[str, float]]) -> Dict[str, float]:
 
         present_value = 0
         previous_value = 0

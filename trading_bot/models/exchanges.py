@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import List
 
 
 class DealOpeningMethod(Enum):
@@ -35,7 +36,7 @@ class ExchangeManager:
 
         return exchange
 
-    def list(self) -> [Exchange]:
+    def list(self) -> List[Exchange]:
         return self._exchanges.copy()
 
     def get(self, name: str) -> Exchange:

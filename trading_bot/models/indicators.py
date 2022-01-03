@@ -1,3 +1,6 @@
+from typing import Dict, List
+
+
 class Indicator:
     class Interval:
         valid_values = {
@@ -13,7 +16,7 @@ class Indicator:
             '1w': 604800,
         }
 
-        def __init__(self, name: str):
+        def __init__(self, name: str) -> None:
             self.name = name
             self.timeout = self.valid_values.get(name)
 
@@ -22,17 +25,17 @@ class Indicator:
             name: str,
             indicator_type: str,
             interval: Interval,
-            optional: {} = None,
-    ):
+            optional: Dict[str, str] = None,
+    ) -> None:
         self.name = name
         self.indicator_type = indicator_type
         self.interval = interval
         self.optional = optional or {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
@@ -47,7 +50,7 @@ class IndicatorManager:
             name: str,
             indicator_type: str,
             interval: str,
-            optional: {} = None,
+            optional: Dict[str, str] = None,
     ) -> Indicator:
         indicator = Indicator(
             name=name,
@@ -61,7 +64,7 @@ class IndicatorManager:
 
         return indicator
 
-    def list(self) -> [Indicator]:
+    def list(self) -> List[Indicator]:
         return self._indicators.copy()
 
     def get(self, name: str) -> Indicator:

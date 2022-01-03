@@ -1,19 +1,28 @@
+from __future__ import annotations
+
 import asyncio
 
-indicator_manager = None
-indicator_value_manager = None
-exchange_manager = None
-symbol_manager = None
-trading_system_manager = None
-notifier = None
-dealer = None
-deals_adapter = None
-decision_maker = None
-indicator_updater = None
-indicator_informer = None
-indicators_adapter = None
-pause_checker = None
-stop_loss_manager = None
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from trading_bot import IndicatorManager, IndicatorValueManager, ExchangeManager, SymbolManager, StopLossManager, \
+        PauseChecker, AdapterTaAPI, IndicatorInformer, IndicatorUpdater, DecisionMaker, AdapterByBit, Dealer, \
+        AdapterTelegram, TradingSystemManager
+
+indicator_manager: IndicatorManager
+indicator_value_manager: IndicatorValueManager
+exchange_manager: ExchangeManager
+symbol_manager: SymbolManager
+trading_system_manager: TradingSystemManager
+notifier: AdapterTelegram
+dealer: Dealer
+deals_adapter: AdapterByBit
+decision_maker: DecisionMaker
+indicator_updater: IndicatorUpdater
+indicator_informer: IndicatorInformer
+indicators_adapter: AdapterTaAPI
+pause_checker: PauseChecker
+stop_loss_manager: StopLossManager
 indicator_update_timeout = 60
 
 
@@ -21,7 +30,7 @@ def run() -> None:
     asyncio.run(_create_tasks())
 
 
-async def _create_tasks():
+async def _create_tasks() -> None:
     task_indicator_updater = asyncio.create_task(
         indicator_updater.run(),
         name='Indicator Updater'

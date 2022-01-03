@@ -1,21 +1,21 @@
 import asyncio
 import logging
 
-from trading_bot import app
+from trading_bot import app, Dealer
 
 logger = logging.getLogger('logger')
 
 
 class PauseChecker:
-    def __init__(self, dealer):
+    def __init__(self, dealer: Dealer) -> None:
         self._dealer = dealer
 
-    async def run(self):
+    async def run(self) -> None:
         while True:
             await self._check_open_deals()
             await asyncio.sleep(app.indicator_update_timeout)
 
-    async def _check_open_deals(self):
+    async def _check_open_deals(self) -> None:
         for symbol in app.symbol_manager.list():
             if symbol.pause:
                 if app.exchange_manager.get('ByBit') in symbol.exchanges:

@@ -1,5 +1,6 @@
 from enum import Enum, auto
 import logging
+from typing import List
 
 from trading_bot import app
 from trading_bot.models.indicator_values import IndicatorValueManager, IndicatorValue
@@ -26,10 +27,10 @@ class DecisionMaker:
             self.side = side
             self.trading_system = trading_system
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f'{self.symbol} {self.side} {self.trading_system}'
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f'{self.symbol} {self.side} {self.trading_system}'
 
     def __init__(
@@ -49,7 +50,7 @@ class DecisionMaker:
             else:
                 await self._check_closing_conditions(symbol)
 
-    async def _check_opening_conditions(self, symbol):
+    async def _check_opening_conditions(self, symbol: Symbol) -> None:
         for trading_system in self._trading_system_manager.list():
             indicator_values = self._get_actual_indicator_values(symbol, trading_system)
 
@@ -72,7 +73,7 @@ class DecisionMaker:
 
                     await app.dealer.open_deal(decision=decision)
 
-    async def _check_closing_conditions(self, symbol):
+    async def _check_closing_conditions(self, symbol: Symbol) -> None:
         for trading_system in self._trading_system_manager.list():
             indicator_values = self._get_actual_indicator_values(symbol, trading_system)
 
@@ -113,7 +114,7 @@ class DecisionMaker:
             self,
             symbol: Symbol,
             trading_system: TradingSystem
-    ) -> [IndicatorValue]:
+    ) -> List[IndicatorValue]:
         indicator_values = []
         for indicator in trading_system.indicators:
             indicator_value = self._indicator_value_manager.get(indicator=indicator, symbol=symbol)
@@ -124,18 +125,29 @@ class DecisionMaker:
     @staticmethod
     def _all_required_indicators_has_values(
             trading_system: TradingSystem,
-            indicator_values: [IndicatorValue]
+            indicator_values: List[IndicatorValue]
     ) -> bool:
         return len(trading_system.indicators) == len(indicator_values)
 
-    async def _check_sell_conditions(self, indicator_values, trading_system):
+    async def _check_sell_conditions(
+            self,
+            indicator_values: List[IndicatorValue],
+            trading_system: TradingSystem
+    ) -> bool:
         return self._check_conditions(indicator_values, trading_system.conditions_to_sell)
 
-    async def _check_buy_conditions(self, indicator_values, trading_system):
+    async def _check_buy_conditions(
+            self,
+            indicator_values: List[IndicatorValue],
+            trading_system: TradingSystem
+    ) -> bool:
         return self._check_conditions(indicator_values, trading_system.conditions_to_buy)
 
     @staticmethod
-    def _check_conditions(indicator_values: [IndicatorValue], conditions: [Condition]) -> bool:
+    def _check_conditions(
+            indicator_values: List[IndicatorValue],
+            conditions: List[Condition]
+    ) -> bool:
         is_satisfied = True
         for condition in conditions:
             if is_satisfied:

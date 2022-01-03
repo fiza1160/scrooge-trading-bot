@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import List
 
 from trading_bot import app
 from trading_bot.models.symbols import Symbol
@@ -58,7 +59,7 @@ class StopLossManager:
                                 f'(new value: {new_stop_loss}, previous value: {deal.stop_loss}')
 
     @staticmethod
-    def _get_symbols_with_open_deals() -> [Symbol]:
+    def _get_symbols_with_open_deals() -> List[Symbol]:
         symbols_with_deals = []
 
         for symbol in app.symbol_manager.list():

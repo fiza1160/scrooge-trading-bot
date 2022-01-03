@@ -2,10 +2,12 @@ import hashlib
 import hmac
 import time
 import logging
+from typing import Dict, Any
 
 import requests
 
 from trading_bot.models.symbols import Symbol
+from trading_bot.services.dealer import Deal
 from trading_bot.services.decision_maker import DealSide
 
 logger = logging.getLogger('logger')
@@ -13,7 +15,7 @@ logger = logging.getLogger('logger')
 
 class AdapterByBit:
 
-    def __init__(self, api_key: str, api_secret: str):
+    def __init__(self, api_key: str, api_secret: str) -> None:
         self._api_key = api_key
         self._api_secret = api_secret
         self.symbol_template = '{base_currency}{quote_currency}'
@@ -46,7 +48,7 @@ class AdapterByBit:
             symbol: Symbol,
             stop_loss: float = 0,
             qty: float = 0,
-    ):
+    ) -> None:
 
         timestamp_ms = int(time.time() * 1000.0)
 
@@ -74,15 +76,13 @@ class AdapterByBit:
                            f'{params}')
             raise Warning
 
-        return resp
-
-    def _get_symbol_alias(self, symbol):
+    def _get_symbol_alias(self, symbol: Symbol) -> str:
         return self.symbol_template.format(
             base_currency=symbol.base_currency,
             quote_currency=symbol.quote_currency,
         )
 
-    def _sing_request_params(self, params):
+    def _sing_request_params(self, params: Dict[str, Any]) -> str:
         ordered_params = ""
         for key in sorted(params):
             ordered_params += f'{key}={params[key]}&'
@@ -94,7 +94,7 @@ class AdapterByBit:
             hashlib.sha256
         ).hexdigest()
 
-    async def get_positions_by_symbol(self, symbol):
+    async def get_positions_by_symbol(self, symbol: Symbol) -> Dict[str, Any]:
         timestamp_ms = int(time.time() * 1000.0)
         params = {
             'api_key': self._api_key,
@@ -111,7 +111,7 @@ class AdapterByBit:
             raise Warning
         return resp
 
-    async def set_stop_loss(self, deal, stop_loss):
+    async def set_stop_loss(self, deal: Deal, stop_loss: float) -> None:
         timestamp_ms = int(time.time() * 1000.0)
 
         params = {
@@ -132,5 +132,3 @@ class AdapterByBit:
             logger.warning(f'ret_code: {resp["ret_code"]} msg: {resp["ret_msg"]}\n'
                            f'{params}')
             raise Warning
-
-        return resp

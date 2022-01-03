@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 import logging
+from typing import List
 
 from trading_bot import app
 from trading_bot.models.exchanges import DealOpeningMethod
 from trading_bot.models.symbols import Symbol
-from trading_bot.services.decision_maker import DealSide
+from trading_bot.services.decision_maker import DealSide, DecisionMaker
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from trading_bot import AdapterByBit
 
 logger = logging.getLogger('logger')
 
@@ -17,7 +24,7 @@ class Deal:
             entry_price: float,
             stop_loss: float,
             take_profit: float,
-    ):
+    ) -> None:
         self.symbol = symbol
         self.side = side
         self.size = size
@@ -25,18 +32,18 @@ class Deal:
         self.stop_loss = stop_loss
         self.take_profit = take_profit
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.symbol} {self.side}'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.symbol} {self.side}'
 
 
 class Dealer:
-    def __init__(self, deals_adapter):
+    def __init__(self, deals_adapter: AdapterByBit) -> None:
         self._deals_adapter = deals_adapter
 
-    async def open_deal(self, decision):
+    async def open_deal(self, decision: DecisionMaker.Decision) -> None:
         for exchange in decision.symbol.exchanges:
             if exchange.deal_opening_method == DealOpeningMethod.SEND_MESSAGE:
                 await app.notifier.notify(msg=str(decision))
@@ -69,7 +76,7 @@ class Dealer:
     def _count_stop_loss_value(
             side: DealSide,
             entry_price: float
-    ):
+    ) -> float:
         sl_percent = 0.02
         if side is DealSide.BUY:
             sl_price = entry_price * (1 - sl_percent)
@@ -78,7 +85,7 @@ class Dealer:
 
         return round(sl_price, 2)
 
-    async def symbol_has_open_deal(self, symbol):
+    async def symbol_has_open_deal(self, symbol: Symbol) -> bool:
         try:
             response = await self._deals_adapter.get_positions_by_symbol(symbol)
         except Warning:
@@ -92,7 +99,7 @@ class Dealer:
 
         return has_open_deals
 
-    async def get_deals_by_symbol(self, symbol):
+    async def get_deals_by_symbol(self, symbol: Symbol) -> List[Deal]:
         try:
             response = await self._deals_adapter.get_positions_by_symbol(symbol)
         except Warning:
@@ -118,21 +125,21 @@ class Dealer:
 
         return deals
 
-    async def get_current_price(self, symbol: Symbol):
+    async def get_current_price(self, symbol: Symbol) -> float:
         try:
             return await self._deals_adapter.get_current_price(symbol=symbol)
         except Warning:
             logger.warning(f'I did not get current price for {symbol}')
             raise Warning
 
-    async def set_stop_loss(self, deal, stop_loss):
+    async def set_stop_loss(self, deal: Deal, stop_loss: float) -> None:
         try:
             await self._deals_adapter.set_stop_loss(deal, stop_loss)
         except Warning:
             logger.warning(f'I did not update stop loss for {deal}')
             raise Warning
 
-    async def close_deal(self, decision):
+    async def close_deal(self, decision: DecisionMaker.Decision) -> None:
         for exchange in decision.symbol.exchanges:
             if exchange.deal_opening_method == DealOpeningMethod.SEND_MESSAGE:
                 await app.notifier.notify(msg=f'It is time to close deal ({decision})')
