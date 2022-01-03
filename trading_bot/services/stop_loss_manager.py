@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import List
 
-from trading_bot import app
+from trading_bot import app, IndicatorValueManager
 from trading_bot.models.symbols import Symbol
 from trading_bot.services.dealer import Deal
 from trading_bot.services.decision_maker import DealSide
@@ -14,7 +14,9 @@ class StopLossManager:
 
     def __init__(
             self,
+            indicator_value_manager: IndicatorValueManager,
     ) -> None:
+        self._indicator_value_manager = indicator_value_manager
         self._stop_loss_indicator = app.indicator_manager.create(
             name='ParabolicSAR_1h',
             indicator_type='ParabolicSAR',
@@ -74,22 +76,19 @@ class StopLossManager:
             current_price: float,
     ) -> float:
 
-        try:
-            indicator_value = await app.indicator_informer.get_indicator_values(
-                symbol=deal.symbol,
-                indicator=self._stop_loss_indicator,
-            )
-        except Warning:
+        indicator_value = self._indicator_value_manager.get(indicator=self._stop_loss_indicator, symbol=deal.symbol)
+
+        if not indicator_value:
             logger.warning(f'I did not get the new stop loss values for {deal.symbol}')
             raise Warning
-
-        indicator_value = indicator_value['present_value']
 
         current_stop_loss = deal.stop_loss
 
         if deal.side == DealSide.BUY:
-            new_sl = indicator_value if current_price > indicator_value > current_stop_loss else current_stop_loss
+            new_sl = (indicator_value if current_price > indicator_value.present_value > current_stop_loss
+                      else current_stop_loss)
         else:
-            new_sl = indicator_value if current_price < indicator_value < current_stop_loss else current_stop_loss
+            new_sl = (indicator_value if current_price < indicator_value.present_value < current_stop_loss
+                      else current_stop_loss)
 
         return new_sl
