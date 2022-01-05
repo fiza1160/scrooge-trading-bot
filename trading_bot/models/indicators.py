@@ -25,7 +25,7 @@ class Indicator:
             name: str,
             indicator_type: str,
             interval: Interval,
-            optional: Dict[str, str] = None,
+            optional: Dict[str, int] = None,
     ) -> None:
         self.name = name
         self.indicator_type = indicator_type
@@ -50,7 +50,7 @@ class IndicatorManager:
             name: str,
             indicator_type: str,
             interval: str,
-            optional: Dict[str, str] = None,
+            optional: Dict[str, int] = None,
     ) -> Indicator:
         indicator = Indicator(
             name=name,

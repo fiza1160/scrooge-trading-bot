@@ -16,7 +16,7 @@ class Symbol:
             base_currency: str,
             quote_currency: str,
             exchanges: List[Exchange],
-            deal_opening_params: Dict[str, str],
+            deal_opening_params: Dict[str, float],
     ) -> None:
         self.name = f'{base_currency}{quote_currency}'
         self.exchanges = exchanges
@@ -44,7 +44,7 @@ class SymbolManager:
             base_currency: str,
             quote_currency: str,
             exchanges: List[Exchange],
-            deal_opening_params: Dict[str, str],
+            deal_opening_params: Dict[str, float],
     ) -> Symbol:
         symbol = Symbol(
             base_currency=base_currency,
