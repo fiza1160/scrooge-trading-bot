@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime, timedelta
 import logging
 
-from trading_bot import app, IndicatorInformer, DecisionMaker
+from trading_bot import app, DecisionMaker, AdapterTaAPI
 from trading_bot.models.indicators import Indicator
 
 logger = logging.getLogger('logger')
@@ -12,12 +12,12 @@ class IndicatorUpdater:
 
     def __init__(
             self,
-            indicator_informer: IndicatorInformer,
+            indicator_adapter: AdapterTaAPI,
             decision_maker: DecisionMaker,
     ) -> None:
         self._last_updates = {}
         self._values_updated = False
-        self._indicator_informer = indicator_informer
+        self._indicator_adapter = indicator_adapter
         self._decision_maker = decision_maker
 
     async def run(self) -> None:
@@ -71,7 +71,7 @@ class IndicatorUpdater:
         for symbol in symbols:
             if not symbol.pause:
                 try:
-                    new_values = await self._indicator_informer.get_indicator_values(
+                    new_values = await self._indicator_adapter.get_indicator_values(
                         symbol=symbol,
                         indicator=indicator
                     )
