@@ -36,8 +36,7 @@ class AdapterTaAPI:
             'exchange': 'binance',
             'symbol': self._get_symbol_alias(symbol),
             'interval': indicator.interval.name,
-            # TODO There must be a clearer way to get data from closed candles only
-            'backtrack': 1,
+            'backtrack': 1,  # closed candles only
             'backtracks': 2,
         }
 
