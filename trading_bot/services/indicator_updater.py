@@ -35,7 +35,7 @@ class IndicatorUpdater:
             await asyncio.sleep(app.indicator_update_timeout)
 
     async def _update(self) -> None:
-        min_timeout = 604800
+        min_timeout = 604800  # It's a week, which is just a huge number for the initialization.
 
         indicators = app.indicator_manager.list()
         if not indicators:

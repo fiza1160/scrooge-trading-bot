@@ -77,7 +77,7 @@ class Dealer:
             side: DealSide,
             entry_price: float
     ) -> float:
-        sl_percent = 0.02
+        sl_percent = 0.02  # TODO move to settings
         if side is DealSide.BUY:
             sl_price = entry_price * (1 - sl_percent)
         else:

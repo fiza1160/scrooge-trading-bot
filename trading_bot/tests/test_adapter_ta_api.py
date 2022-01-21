@@ -38,7 +38,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
         symbol = app.symbol_manager.create(
             base_currency='BTC',
             quote_currency='USDT',
-            exchanges='ByBit',
+            exchanges=[app.exchange_manager.get('ByBit')],
             deal_opening_params={'qty': 0.368}
         )
 
@@ -59,6 +59,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
                 'exchange': 'binance',
                 'symbol': f'{symbol.base_currency}/{symbol.quote_currency}',
                 'interval': indicator.interval.name,
+                'backtrack': 1,
                 'backtracks': 2,
                 'optInTimePeriod': 12,
             }
@@ -79,6 +80,7 @@ class TestAdapterTaAPI(IsolatedAsyncioTestCase):
                 'exchange': 'binance',
                 'symbol': f'{symbol.base_currency}/{symbol.quote_currency}',
                 'interval': indicator.interval.name,
+                'backtrack': 1,
                 'backtracks': 2,
             }
 
