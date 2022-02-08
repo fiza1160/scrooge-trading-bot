@@ -38,7 +38,7 @@
             "indicators":[
                {
                   "name":"ADX_1d",
-                  "indicator_type":"Momentum",
+                  "indicator_type":"ADX",
                   "interval":"1d",
                   "optional": {}
                },
