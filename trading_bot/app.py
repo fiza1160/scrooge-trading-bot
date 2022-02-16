@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from trading_bot import IndicatorManager, IndicatorValueManager, ExchangeManager, SymbolManager, StopLossManager, \
-        PauseChecker, AdapterTaAPI, IndicatorInformer, IndicatorUpdater, DecisionMaker, AdapterByBit, Dealer, \
+        PauseChecker, AdapterTaAPI, IndicatorUpdater, DecisionMaker, AdapterByBit, Dealer, \
         AdapterTelegram, TradingSystemManager
 
 indicator_manager: IndicatorManager
@@ -19,7 +19,6 @@ dealer: Dealer
 deals_adapter: AdapterByBit
 decision_maker: DecisionMaker
 indicator_updater: IndicatorUpdater
-indicator_informer: IndicatorInformer
 indicators_adapter: AdapterTaAPI
 pause_checker: PauseChecker
 stop_loss_manager: StopLossManager
